@@ -4,15 +4,15 @@ import {useNavigate} from "react-router-dom";
 
 import {removeUserSession} from "../../helpers/authentication";
 import {Paths} from "../../constants/routes";
-import {AppContext} from "../../App";
+import {AuthContext} from "../../App";
 
 export const HomePage = () => {
     const navigate = useNavigate();
-    const {setAppState} = useContext(AppContext);
+    const {setAuthState} = useContext(AuthContext);
 
     const onLogoutBtnClick = () => {
         removeUserSession();
-        setAppState({token: null, name: null});
+        setAuthState({token: null, name: null});
         navigate(Paths.LOGIN_PATH);
     }
 
