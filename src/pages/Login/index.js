@@ -6,7 +6,6 @@ import {setUserSession} from "../../helpers/authentication";
 import {Paths} from "../../constants/routes";
 import {AuthContext} from "../../App";
 
-import 'antd/dist/antd.css';
 import styles from './styles.module.scss';
 
 const { Item } = Form;

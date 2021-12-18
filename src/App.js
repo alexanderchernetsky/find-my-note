@@ -12,6 +12,8 @@ import {LoginPage} from "./pages/Login";
 import {NotFound} from "./pages/NotFound";
 import {Paths} from "./constants/routes";
 
+import 'antd/dist/antd.css';
+
 export const AuthContext = React.createContext({});
 
 function App() {
