@@ -1,4 +1,4 @@
-import {useContext} from "react";
+import {useContext, useState} from "react";
 import {Button, Input} from "antd";
 import {useNavigate} from "react-router-dom";
 import { PlusOutlined } from '@ant-design/icons';
@@ -7,6 +7,7 @@ import {removeUserSession} from "../../helpers/authentication";
 import {Paths} from "../../constants/routes";
 import {AuthContext} from "../../App";
 import Tag from "../../components/Tag";
+import NoteModal from "../../components/NoteModal";
 
 import styles from './styles.module.scss';
 
@@ -15,6 +16,8 @@ const { Search } = Input;
 export const HomePage = () => {
     const navigate = useNavigate();
     const {setAuthState} = useContext(AuthContext);
+
+    const [isNewNoteModalOpen, setIsNewNoteModalVisibility] = useState(false);
 
     const onLogoutBtnClick = () => {
         removeUserSession();
@@ -38,7 +41,7 @@ export const HomePage = () => {
     }
 
     const onAddNewNoteBtnClick = () => {
-      // todo: open modal
+        setIsNewNoteModalVisibility(true);
     }
 
     return (
@@ -69,6 +72,8 @@ export const HomePage = () => {
                     )}
                 </div>
             </div>
+
+            {isNewNoteModalOpen && <NoteModal onCloseHandler={() => setIsNewNoteModalVisibility(false)} hashtags={tags} />}
         </div>
     )
 }

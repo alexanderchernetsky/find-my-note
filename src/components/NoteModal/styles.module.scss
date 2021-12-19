@@ -1,0 +1,87 @@
+.pageCover {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  transition: opacity 0.3s ease 0s;
+  z-index: 2;
+  opacity: 1;
+}
+
+.modalWrapper {
+  width: 700px;
+  position: fixed;
+  z-index: 3;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  left: 50%;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.modalTitle {
+  font-weight: bold;
+  font-size: 24px;
+  text-align: center;
+  color: #1891FF;
+  position: relative;
+  width: 90%;
+}
+
+.noteForm {
+  width: 90%;
+}
+
+.noteFormItem {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  margin-bottom: 20px;
+}
+
+.noteHeaderInput {
+  height: 50px;
+  background: #FCFDFE;
+  border: 1px solid #EAECEF;
+  box-sizing: border-box;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 20px;
+  color: #3D4868 !important;
+}
+
+textarea {
+  min-height: 200px !important;
+  background: #FCFDFE;
+  border: 1px solid #EAECEF;
+  box-sizing: border-box;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 20px;
+  color: #3D4868 !important;
+}
+
+.noteFormSubmitButton {
+  width: 100%;
+}
+
+.closeButton {
+  position: absolute !important;
+  top: 5px;
+  right: 0;
+}
+
+.tagsWrapper {
+  margin: 20px 0 20px 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+}

@@ -1,8 +1,10 @@
 import React from 'react';
 import { Tag } from 'antd';
 
-const TagComponent = ({title, onClick}) => {
-    return <Tag color="cyan" onClick={onClick}>#{title}</Tag>
+import styles from './styles.module.scss';
+
+const TagComponent = ({title, onClick, isSelected}) => {
+    return <Tag color="cyan" onClick={() => onClick(title)} className={isSelected ? styles.selectedTag : styles.tag}>#{title}</Tag>
 }
 
 export default TagComponent;
