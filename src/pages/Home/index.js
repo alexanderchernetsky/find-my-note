@@ -8,6 +8,7 @@ import {Paths} from "../../constants/routes";
 import {AuthContext} from "../../App";
 import Tag from "../../components/Tag";
 import NoteModal from "../../components/NoteModal";
+import Note from "../../components/Note";
 
 import styles from './styles.module.scss';
 
@@ -44,6 +45,44 @@ export const HomePage = () => {
         setIsNewNoteModalVisibility(true);
     }
 
+    const notes = [
+        {
+            id: 1,
+            title: 'Test heading',
+            content: 'Hello! This is a test note #test',
+            created: '25.12.2021',
+            lastModified: '26.12.2021',
+        },
+        {
+            id: 2,
+            title: 'Another note heading',
+            content: 'This is another test note #test #test2',
+            created: '25.12.2021',
+            lastModified: '26.12.2021',
+        },
+        {
+            id: 3,
+            title: 'Test heading 3',
+            content: 'Hello! This is a test note #test4',
+            created: '25.12.2021',
+            lastModified: '26.12.2021',
+        },
+        {
+            id: 4,
+            title: 'Test heading 4',
+            content: 'Hello! This is a test note #test4',
+            created: '25.12.2021',
+            lastModified: '26.12.2021',
+        },
+        {
+            id: 5,
+            title: 'Test heading 5',
+            content: 'Hello! This is a test note #test5',
+            created: '25.12.2021',
+            lastModified: '26.12.2021',
+        }
+    ]
+
     return (
         <div className={styles.mainPageWrapper}>
             <Button onClick={onLogoutBtnClick} className={styles.logOutButton}>
@@ -69,6 +108,12 @@ export const HomePage = () => {
                 <div className={styles.tagsWrapper}>
                     {tags && (
                         tags.map(tag => <Tag key={tag.id} title={tag.title} onClick={onTagClick}/> )
+                    )}
+                </div>
+
+                <div className={styles.notesWrapper}>
+                    {notes && (
+                        notes.map(note => <Note key={note.id} title={note.title} content={note.content} created={note.created} lastModified={note.lastModified} />)
                     )}
                 </div>
             </div>

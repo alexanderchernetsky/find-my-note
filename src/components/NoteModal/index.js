@@ -15,11 +15,6 @@ const NoteModal = ({onCloseHandler, hashtags}) => {
     const onFinish = (values) => {
         const {note_header, note_content} = values;
 
-        const regex = /(^|\s)(#[a-z\d-]+)/g;
-        const hashtags = [...note_content.matchAll(regex)].map(item => item[2]);
-
-        console.log("hashtags", hashtags);
-
         if (note_header && note_content) {
             console.log(values);
             setSubmitProgress(true);
