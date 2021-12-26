@@ -81,7 +81,7 @@ export const HomePage = () => {
             created: '25.12.2021',
             lastModified: '26.12.2021',
         }
-    ]
+    ];
 
     return (
         <div className={styles.mainPageWrapper}>
@@ -113,7 +113,7 @@ export const HomePage = () => {
 
                 <div className={styles.notesWrapper}>
                     {notes && (
-                        notes.map(note => <Note key={note.id} title={note.title} content={note.content} created={note.created} lastModified={note.lastModified} />)
+                        notes.map(note => <Note key={note.id} note={note} />)
                     )}
                 </div>
             </div>

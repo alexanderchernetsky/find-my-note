@@ -1,3 +1,7 @@
 .hash-tag {
     color: #1890ff;
 }
+
+.ant-card-body {
+    padding: 40px !important;
+}

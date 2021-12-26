@@ -8,9 +8,11 @@ import Tag from "../Tag";
 const { Item } = Form;
 const {TextArea} = Input;
 
-const NoteModal = ({onCloseHandler, hashtags}) => {
+const NoteModal = ({onCloseHandler, hashtags, note}) => {
     const [isSubmitInProgress, setSubmitProgress] = useState(false);
     const [selectedTags, setSelectedTags] = useState([]);
+
+    const isEditMode = !!note;
 
     const onFinish = (values) => {
         const {note_header, note_content} = values;
@@ -18,7 +20,7 @@ const NoteModal = ({onCloseHandler, hashtags}) => {
         if (note_header && note_content) {
             console.log(values);
             setSubmitProgress(true);
-            // TODO: trigger a request to /note POST api route
+            // TODO: trigger a request to create OR update a note in DB
         }
     };
 
@@ -49,12 +51,12 @@ const NoteModal = ({onCloseHandler, hashtags}) => {
 
             <div className={styles.modalWrapper}>
                 <div className={styles.modalTitle}>
-                    Create new note
+                    {isEditMode ? 'Edit note' : 'Create new note'}
                     <Button type="secondary" size="small" icon={<CloseOutlined />} className={styles.closeButton} onClick={onCloseClick} />
                 </div>
                 <Form
                     name="note-form"
-                    initialValues={{ remember: false }}
+                    initialValues={{ remember: false, note_header: note.title, note_content: note.content }}
                     onFinish={onFinish}
                     onFinishFailed={onFinishFailed}
                     className={styles.noteForm}
@@ -79,12 +81,13 @@ const NoteModal = ({onCloseHandler, hashtags}) => {
                         <TextArea type="text" size="large" placeholder="Input your note and add tags" />
                     </Item>
 
-                    {/* todo: add new tag functionality */}
-                    <div className={styles.tagsWrapper}>
-                        {hashtags && (
-                            hashtags.map(tag => <Tag key={tag.id} title={tag.title} onClick={onTagClick} isSelected={selectedTags.includes(tag.title)} /> )
-                        )}
-                    </div>
+
+                    {hashtags && (
+                        <div className={styles.tagsWrapper}>
+                            {hashtags.map(tag => <Tag key={tag.id} title={tag.title} onClick={onTagClick} isSelected={selectedTags.includes(tag.title)} /> )}
+                        </div>
+                    )}
+
 
                     <Item className={styles.noteFormItem}>
                         <Button
