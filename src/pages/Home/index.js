@@ -1,5 +1,6 @@
-import {useContext, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {Button, Input} from "antd";
+import axios from "axios";
 import {useNavigate} from "react-router-dom";
 import { PlusOutlined } from '@ant-design/icons';
 
@@ -19,6 +20,20 @@ export const HomePage = () => {
     const {setAuthState} = useContext(AuthContext);
 
     const [isNewNoteModalOpen, setIsNewNoteModalVisibility] = useState(false);
+
+    const [notes, setNotes] = useState([]);
+
+    useEffect(() => {
+        axios.get('http://localhost:3001/notes')
+            .then((response) => {
+                console.log(response);
+                setNotes(response.data);
+            })
+            .catch((error) => {
+                // todo: show error modal
+                console.error(error);
+            })
+    }, []);
 
     const onLogoutBtnClick = () => {
         removeUserSession();
@@ -44,44 +59,6 @@ export const HomePage = () => {
     const onAddNewNoteBtnClick = () => {
         setIsNewNoteModalVisibility(true);
     }
-
-    const notes = [
-        {
-            id: 1,
-            title: 'Test heading',
-            content: 'Hello! This is a test note #test',
-            created: '25.12.2021',
-            lastModified: '26.12.2021',
-        },
-        {
-            id: 2,
-            title: 'Another note heading',
-            content: 'This is another test note #test #test2',
-            created: '25.12.2021',
-            lastModified: '26.12.2021',
-        },
-        {
-            id: 3,
-            title: 'Test heading 3',
-            content: 'Hello! This is a test note #test4',
-            created: '25.12.2021',
-            lastModified: '26.12.2021',
-        },
-        {
-            id: 4,
-            title: 'Test heading 4',
-            content: 'Hello! This is a test note #test4',
-            created: '25.12.2021',
-            lastModified: '26.12.2021',
-        },
-        {
-            id: 5,
-            title: 'Test heading 5',
-            content: 'Hello! This is a test note #test5',
-            created: '25.12.2021',
-            lastModified: '26.12.2021',
-        }
-    ];
 
     return (
         <div className={styles.mainPageWrapper}>

@@ -21,6 +21,11 @@ const NoteModal = ({onCloseHandler, hashtags, note}) => {
             console.log(values);
             setSubmitProgress(true);
             // TODO: trigger a request to create OR update a note in DB
+            if (isEditMode) {
+
+            } else {
+
+            }
         }
     };
 
@@ -43,8 +48,6 @@ const NoteModal = ({onCloseHandler, hashtags, note}) => {
         }
     }
 
-    console.log("selectedTags", selectedTags);
-
     return (
         <React.Fragment>
             <div className={styles.pageCover} />
@@ -56,7 +59,7 @@ const NoteModal = ({onCloseHandler, hashtags, note}) => {
                 </div>
                 <Form
                     name="note-form"
-                    initialValues={{ remember: false, note_header: note.title, note_content: note.content }}
+                    initialValues={{ remember: false, note_header: note?.heading, note_content: note?.text }}
                     onFinish={onFinish}
                     onFinishFailed={onFinishFailed}
                     className={styles.noteForm}
@@ -73,7 +76,7 @@ const NoteModal = ({onCloseHandler, hashtags, note}) => {
 
                     <Item
                         name="note_content"
-                        rules={[{ required: true, message: "Please input your note!" }]}
+                        rules={[{ required: true, message: "Please input content!" }]}
                         className={styles.noteFormItem}
                         label="Note content"
                         labelAlign="left"

@@ -12,15 +12,14 @@ import styles from './styles.module.scss';
 const { Meta } = Card;
 
 const Note = ({note}) => {
-    const {id, title, content, created, lastModified} = note;
+    const {id, heading, text, date_created, last_updated} = note;
 
     const [isModalVisible, setModalVisibility] = useState(false);
     const [isEditNoteModalVisible, setEditNoteModalVisible] = useState(false);
 
+    // highlight hashtags
     const regex = /(^|\s)(#[a-z\d-]+)/g;
-
-    const contentWithHighlight = content.replaceAll(regex, "$1<span class='hash-tag'>$2</span>")
-
+    const contentWithHighlight = text.replaceAll(regex, "$1<span class='hash-tag'>$2</span>")
     const parsedContent = parse(contentWithHighlight);
 
     const onDeleteBtnClick = () => {
@@ -37,7 +36,8 @@ const Note = ({note}) => {
         setEditNoteModalVisible(true);
     }
 
-    const infoTooltipContent = `Created: ${created}. Last updated: ${lastModified}.`
+    // todo: transform dates to a readable format
+    const infoTooltipContent = `Created: ${date_created}. Last updated: ${last_updated}.`
 
     return (
         <>
@@ -51,13 +51,13 @@ const Note = ({note}) => {
                 className={styles.card}
             >
                 <Meta
-                    title={title}
+                    title={heading}
                     description={parsedContent}
                 />
             </Card>
 
             {isModalVisible && (
-                <ConfirmationModal text={`Do you want to delete note "${title}"?`} onCancel={() => setModalVisibility(false)} onOk={() => deleteModal(id)} />
+                <ConfirmationModal text={`Do you want to delete note "${heading}"?`} onCancel={() => setModalVisibility(false)} onOk={() => deleteModal(id)} />
             )}
 
             {isEditNoteModalVisible && <NoteModal onCloseHandler={() => setEditNoteModalVisible(false)} note={note} />}
