@@ -15,12 +15,7 @@ import styles from './styles.module.scss';
 
 const { Search } = Input;
 
-export const HomePage = () => {
-    const navigate = useNavigate();
-    const {setAuthState} = useContext(AuthContext);
-
-    const [isNewNoteModalOpen, setIsNewNoteModalVisibility] = useState(false);
-
+const useFetchNotes = () => {
     const [notes, setNotes] = useState([]);
 
     useEffect(() => {
@@ -32,8 +27,19 @@ export const HomePage = () => {
             .catch((error) => {
                 // todo: show error modal
                 console.error(error);
-            })
+            });
     }, []);
+
+    return [notes, setNotes];
+}
+
+export const HomePage = () => {
+    const navigate = useNavigate();
+    const {setAuthState} = useContext(AuthContext);
+
+    const [isNewNoteModalOpen, setIsNewNoteModalVisibility] = useState(false);
+
+    const [notes, setNotes] = useFetchNotes();
 
     const onLogoutBtnClick = () => {
         removeUserSession();
@@ -90,12 +96,12 @@ export const HomePage = () => {
 
                 <div className={styles.notesWrapper}>
                     {notes && (
-                        notes.map(note => <Note key={note.id} note={note} />)
+                        notes.map(note => <Note key={note.note_id} note={note} />)
                     )}
                 </div>
             </div>
 
-            {isNewNoteModalOpen && <NoteModal onCloseHandler={() => setIsNewNoteModalVisibility(false)} hashtags={tags} />}
+            {isNewNoteModalOpen && <NoteModal onCloseHandler={() => setIsNewNoteModalVisibility(false)} hashtags={tags} notes={notes} setNotes={setNotes} />}
         </div>
     )
 }

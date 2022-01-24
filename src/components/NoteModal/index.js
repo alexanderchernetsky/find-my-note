@@ -1,14 +1,16 @@
 import React, {useState} from 'react';
-import {Button, Form, Input} from "antd";
+import {Button, Form, Input, message} from "antd";
+import axios from "axios";
 
 import styles from './styles.module.scss';
 import {CloseOutlined} from "@ant-design/icons";
 import Tag from "../Tag";
+import HASHTAG_REGEXP from "../../constants/regexp";
 
 const { Item } = Form;
 const {TextArea} = Input;
 
-const NoteModal = ({onCloseHandler, hashtags, note}) => {
+const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
     const [isSubmitInProgress, setSubmitProgress] = useState(false);
     const [selectedTags, setSelectedTags] = useState([]);
 
@@ -18,12 +20,30 @@ const NoteModal = ({onCloseHandler, hashtags, note}) => {
         const {note_header, note_content} = values;
 
         if (note_header && note_content) {
-            console.log(values);
-            setSubmitProgress(true);
-            // TODO: trigger a request to create OR update a note in DB
-            if (isEditMode) {
+            const tags = [...note_content.matchAll(HASHTAG_REGEXP)].map(item => item[2]);
 
+            setSubmitProgress(true);
+
+            if (isEditMode) {
+                // TODO: trigger a request to update a note in DB
             } else {
+                // create a new note
+                // todo: remove hardcoded user_id
+                axios.post('http://localhost:3001/note', {
+                    user_id: 1,
+                    heading: note_header,
+                    text: note_content,
+                    tags
+                })
+                    .then((response) => {
+                        onCloseHandler();
+                        setNotes([response.data.note, ...notes]);
+                        message.success('You successfully created a new note!');
+                    })
+                    .catch((error) => {
+                        message.error('You failed to create a new note!');
+                        console.error(error);
+                    })
 
             }
         }

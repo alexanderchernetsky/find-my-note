@@ -5,6 +5,7 @@ import parse from 'html-react-parser';
 
 import ConfirmationModal from "../ConfirmationModal";
 import NoteModal from "../NoteModal";
+import HASHTAG_REGEXP from "../../constants/regexp";
 
 import './styles.css';
 import styles from './styles.module.scss';
@@ -12,21 +13,20 @@ import styles from './styles.module.scss';
 const { Meta } = Card;
 
 const Note = ({note}) => {
-    const {id, heading, text, date_created, last_updated} = note;
+    const {note_id, heading, text, date_created, last_updated} = note;
 
     const [isModalVisible, setModalVisibility] = useState(false);
     const [isEditNoteModalVisible, setEditNoteModalVisible] = useState(false);
 
     // highlight hashtags
-    const regex = /(^|\s)(#[a-z\d-]+)/g;
-    const contentWithHighlight = text.replaceAll(regex, "$1<span class='hash-tag'>$2</span>")
+    const contentWithHighlight = text.replaceAll(HASHTAG_REGEXP, "$1<span class='hash-tag'>$2</span>");
     const parsedContent = parse(contentWithHighlight);
 
     const onDeleteBtnClick = () => {
         setModalVisibility(true);
     }
 
-    const deleteModal = id => {
+    const deleteModal = note_id => {
         // todo: call API to delete note from DB
 
         setModalVisibility(false);
@@ -57,7 +57,7 @@ const Note = ({note}) => {
             </Card>
 
             {isModalVisible && (
-                <ConfirmationModal text={`Do you want to delete note "${heading}"?`} onCancel={() => setModalVisibility(false)} onOk={() => deleteModal(id)} />
+                <ConfirmationModal text={`Do you want to delete note "${heading}"?`} onCancel={() => setModalVisibility(false)} onOk={() => deleteModal(note_id)} />
             )}
 
             {isEditNoteModalVisible && <NoteModal onCloseHandler={() => setEditNoteModalVisible(false)} note={note} />}
