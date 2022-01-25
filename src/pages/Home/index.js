@@ -1,5 +1,5 @@
 import {useContext, useEffect, useState} from "react";
-import {Button, Input} from "antd";
+import {Button, Input, message} from "antd";
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
 import { PlusOutlined } from '@ant-design/icons';
@@ -48,8 +48,15 @@ export const HomePage = () => {
     }
 
     const onSearch = text => {
-        console.log("text", text);
-        // todo: trigger API request
+        // todo: sync search with the url
+        axios.get(`http://localhost:3001/notes?search=${text}`)
+            .then((response) => {
+                setNotes(response.data);
+            })
+            .catch((error) => {
+                message.error('Failed to search!');
+                console.error(error);
+            });
     }
 
     const tags = [
@@ -58,8 +65,16 @@ export const HomePage = () => {
         {id: 3, title: 'cmdb'},
     ];
 
-    const onTagClick = () => {
-        // todo: trigger API call to search by clicked tag
+    const onTagClick = (tagTitle) => {
+        // todo: sync search with the url
+        axios.get(`http://localhost:3001/notes?tag=${tagTitle}`)
+            .then((response) => {
+                setNotes(response.data);
+            })
+            .catch((error) => {
+                message.error('Failed to search!');
+                console.error(error);
+            });
     }
 
     const onAddNewNoteBtnClick = () => {
