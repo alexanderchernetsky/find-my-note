@@ -21,16 +21,32 @@ const useFetchNotes = () => {
     useEffect(() => {
         axios.get('http://localhost:3001/notes')
             .then((response) => {
-                console.log(response);
                 setNotes(response.data);
             })
             .catch((error) => {
-                // todo: show error modal
+                message.error('Error. Failed to fetch notes!');
                 console.error(error);
             });
     }, []);
 
     return [notes, setNotes];
+}
+
+const useFetchTags = () => {
+    const [tags, setTags] = useState([]);
+
+    useEffect(() => {
+        axios.get('http://localhost:3001/tags')
+            .then((response) => {
+                setTags(response.data);
+            })
+            .catch((error) => {
+                message.error('Error. Failed to fetch tags!');
+                console.error(error);
+            });
+    }, []);
+
+    return tags;
 }
 
 export const HomePage = () => {
@@ -40,6 +56,8 @@ export const HomePage = () => {
     const [isNewNoteModalOpen, setIsNewNoteModalVisibility] = useState(false);
 
     const [notes, setNotes] = useFetchNotes();
+
+    const tags = useFetchTags();
 
     const onLogoutBtnClick = () => {
         removeUserSession();
@@ -59,15 +77,10 @@ export const HomePage = () => {
             });
     }
 
-    const tags = [
-        {id: 1, title: 'totepool'},
-        {id: 2, title: 'racing-post'},
-        {id: 3, title: 'cmdb'},
-    ];
-
-    const onTagClick = (tagTitle) => {
+    const onTagClick = (title) => {
+        const titleWithoutHashtagSymbol = title.replace("#", "");
         // todo: sync search with the url
-        axios.get(`http://localhost:3001/notes?tag=${tagTitle}`)
+        axios.get(`http://localhost:3001/notes?tag=${titleWithoutHashtagSymbol}`)
             .then((response) => {
                 setNotes(response.data);
             })
@@ -105,7 +118,7 @@ export const HomePage = () => {
 
                 <div className={styles.tagsWrapper}>
                     {tags && (
-                        tags.map(tag => <Tag key={tag.id} title={tag.title} onClick={onTagClick}/> )
+                        tags.map((tag, index) => <Tag key={index} title={tag} onClick={onTagClick}/> )
                     )}
                 </div>
 

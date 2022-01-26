@@ -138,7 +138,7 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
 
                     {hashtags && (
                         <div className={styles.tagsWrapper}>
-                            {hashtags.map(tag => <Tag key={tag.id} title={tag.title} onClick={onTagClick} isSelected={selectedTags.includes(tag.title)} /> )}
+                            {hashtags.map((tag, index) => <Tag key={index} title={tag} onClick={onTagClick} isSelected={selectedTags.includes(tag)} /> )}
                         </div>
                     )}
 
