@@ -111,7 +111,7 @@ export const HomePage = () => {
 
                 <div className={styles.notesWrapper}>
                     {notes && (
-                        notes.map(note => <Note key={note.note_id} note={note} />)
+                        notes.map(note => <Note key={note.note_id} note={note} hashtags={tags} notes={notes} setNotes={setNotes} />)
                     )}
                 </div>
             </div>

@@ -1,11 +1,12 @@
 import React, {useState} from 'react';
 import {Button, Form, Input, message} from "antd";
 import axios from "axios";
-
-import styles from './styles.module.scss';
 import {CloseOutlined} from "@ant-design/icons";
+
 import Tag from "../Tag";
 import HASHTAG_REGEXP from "../../constants/regexp";
+
+import styles from './styles.module.scss';
 
 const { Item } = Form;
 const {TextArea} = Input;
@@ -25,7 +26,35 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
             setSubmitProgress(true);
 
             if (isEditMode) {
-                // TODO: trigger a request to update a note in DB
+                // todo: remove hardcoded user_id
+                // update an existing note
+                axios.patch(`http://localhost:3001/note/${note.note_id}`, {
+                    user_id: 1,
+                    heading: note_header,
+                    text: note_content,
+                    tags
+                })
+                    .then((response) => {
+                        const newNotes = notes.map(item => {
+                            if (item.note_id === note.note_id) {
+                                return {
+                                    ...item,
+                                    ...response.data.values
+                                }
+                            }
+                            return item;
+                        })
+                        setNotes(newNotes);
+                        message.success('You successfully updated a note!');
+                    })
+                    .catch((error) => {
+                        message.error('You failed to update a note!');
+                        console.error(error);
+                    })
+                    .finally(() => {
+                        setSubmitProgress(false);
+                        onCloseHandler();
+                    })
             } else {
                 // create a new note
                 // todo: remove hardcoded user_id
@@ -36,7 +65,6 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
                     tags
                 })
                     .then((response) => {
-                        onCloseHandler();
                         setNotes([response.data.note, ...notes]);
                         message.success('You successfully created a new note!');
                     })
@@ -44,7 +72,10 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
                         message.error('You failed to create a new note!');
                         console.error(error);
                     })
-
+                    .finally(() => {
+                        setSubmitProgress(false);
+                        onCloseHandler();
+                    })
             }
         }
     };

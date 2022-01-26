@@ -1,5 +1,6 @@
 import {useState} from "react";
-import { Card, Tooltip } from 'antd';
+import axios from "axios";
+import {Card, message, Tooltip} from 'antd';
 import { EditOutlined, DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import parse from 'html-react-parser';
 
@@ -12,7 +13,7 @@ import styles from './styles.module.scss';
 
 const { Meta } = Card;
 
-const Note = ({note}) => {
+const Note = ({note, hashtags, notes, setNotes}) => {
     const {note_id, heading, text, date_created, last_updated} = note;
 
     const [isModalVisible, setModalVisibility] = useState(false);
@@ -27,9 +28,19 @@ const Note = ({note}) => {
     }
 
     const deleteModal = note_id => {
-        // todo: call API to delete note from DB
-
-        setModalVisibility(false);
+        axios.delete(`http://localhost:3001/note/${note_id}`)
+            .then((response) => {
+                const newNotes = notes.filter(item => item.note_id !== note_id);
+                setNotes(newNotes);
+                message.success('You successfully deleted a note!');
+            })
+            .catch((error) => {
+                message.error('You failed to delete a note!');
+                console.error(error);
+            })
+            .finally(() => {
+                setModalVisibility(false);
+            })
     }
 
     const onEditBtnClick = () => {
@@ -60,7 +71,7 @@ const Note = ({note}) => {
                 <ConfirmationModal text={`Do you want to delete note "${heading}"?`} onCancel={() => setModalVisibility(false)} onOk={() => deleteModal(note_id)} />
             )}
 
-            {isEditNoteModalVisible && <NoteModal onCloseHandler={() => setEditNoteModalVisible(false)} note={note} />}
+            {isEditNoteModalVisible && <NoteModal onCloseHandler={() => setEditNoteModalVisible(false)} note={note} hashtags={hashtags} notes={notes} setNotes={setNotes} />}
         </>
 
     )
