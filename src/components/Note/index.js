@@ -1,5 +1,4 @@
 import {useState} from "react";
-import axios from "axios";
 import {Card, message, Tooltip} from 'antd';
 import { EditOutlined, DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import parse from 'html-react-parser';
@@ -10,6 +9,7 @@ import HASHTAG_REGEXP from "../../constants/regexp";
 
 import './styles.css';
 import styles from './styles.module.scss';
+import axiosInstance from "../../services/axios";
 
 const { Meta } = Card;
 
@@ -28,8 +28,8 @@ const Note = ({note, hashtags, notes, setNotes}) => {
     }
 
     const deleteModal = note_id => {
-        axios.delete(`http://localhost:3001/note/${note_id}`)
-            .then((response) => {
+        axiosInstance.delete(`/note/${note_id}`)
+            .then(() => {
                 const newNotes = notes.filter(item => item.note_id !== note_id);
                 setNotes(newNotes);
                 message.success('You successfully deleted a note!');

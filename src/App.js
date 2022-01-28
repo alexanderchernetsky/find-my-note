@@ -6,7 +6,7 @@ import {
     Navigate
 } from "react-router-dom";
 
-import {getToken} from "./helpers/authentication";
+import {getUser} from "./helpers/authentication";
 import {HomePage} from "./pages/Home";
 import {LoginPage} from "./pages/Login";
 import {NotFound} from "./pages/NotFound";
@@ -17,15 +17,15 @@ import 'antd/dist/antd.css';
 export const AuthContext = React.createContext({});
 
 function App() {
-    const [authState, setAuthState] = useState({token: null, user: null});
+    const [authState, setAuthState] = useState({user: null});
 
-    const {token} = authState;
+    const {user} = authState;
 
     useEffect(() => {
-        const token = getToken();
-        if (token) {
-            // TODO: replace with token and user from storage
-            setAuthState({token: 'test_token', user: 'test_user'})
+        const user = getUser();
+        if (user) {
+            // TODO: replace with a real user
+            setAuthState({user: 'test_user'})
         }
     }, []);
 
@@ -36,9 +36,9 @@ function App() {
                     <Route path="*" element={<NotFound />} />
                     <Route path="/" element={<Navigate replace to={Paths.HOME_PAGE_PATH} />} />
                     {/* Public route: */}
-                    <Route path={Paths.LOGIN_PATH} element={!token ? <LoginPage /> : <Navigate replace to={Paths.HOME_PAGE_PATH} />}/>
+                    <Route path={Paths.LOGIN_PATH} element={!user ? <LoginPage /> : <Navigate replace to={Paths.HOME_PAGE_PATH} />}/>
                     {/* Private route: */}
-                    <Route path={Paths.HOME_PAGE_PATH} element={token ? <HomePage /> : <Navigate replace to={Paths.LOGIN_PATH} />}/>
+                    <Route path={Paths.HOME_PAGE_PATH} element={user ? <HomePage /> : <Navigate replace to={Paths.LOGIN_PATH} />}/>
                 </Routes>
             </BrowserRouter>
         </AuthContext.Provider>

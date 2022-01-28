@@ -1,12 +1,14 @@
 import {useContext} from "react";
-import {Button, Form, Input} from "antd";
+import {Button, Form, Input, message} from "antd";
 import { useNavigate } from "react-router-dom";
 
 import {setUserSession} from "../../helpers/authentication";
 import {Paths} from "../../constants/routes";
 import {AuthContext} from "../../App";
+import axiosInstance from "../../services/axios";
 
 import styles from './styles.module.scss';
+
 
 const { Item } = Form;
 
@@ -16,11 +18,20 @@ export const LoginPage = () => {
 
     const onFinish = (values) => {
         const {email, password} = values;
+
         if (email && password) {
-           // TODO: trigger a request to /login api route
-            setUserSession('test_token', {name: 'test_user'});
-            setAuthState({token: 'test_token', name: 'test_user'})
-            navigate(Paths.HOME_PAGE_PATH);
+            // todo: add real user instead of a hardcoded one
+            axiosInstance.get('/login')
+                .then(() => {
+                    message.success('Logged in successfully!');
+                    setUserSession({user: 'test_user'});
+                    setAuthState({user: 'test_user'})
+                    navigate(Paths.HOME_PAGE_PATH);
+                })
+                .catch((error) => {
+                    message.error('Login failed!');
+                    console.error(error);
+                });
         }
     };
 

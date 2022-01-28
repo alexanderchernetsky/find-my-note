@@ -1,6 +1,5 @@
 import {useContext, useEffect, useState} from "react";
 import {Button, Input, message} from "antd";
-import axios from "axios";
 import {useNavigate} from "react-router-dom";
 import { PlusOutlined } from '@ant-design/icons';
 
@@ -10,6 +9,7 @@ import {AuthContext} from "../../App";
 import Tag from "../../components/Tag";
 import NoteModal from "../../components/NoteModal";
 import Note from "../../components/Note";
+import axiosInstance from "../../services/axios";
 
 import styles from './styles.module.scss';
 
@@ -19,7 +19,7 @@ const useFetchNotes = () => {
     const [notes, setNotes] = useState([]);
 
     useEffect(() => {
-        axios.get('http://localhost:3001/notes')
+        axiosInstance.get('/notes')
             .then((response) => {
                 setNotes(response.data);
             })
@@ -36,7 +36,7 @@ const useFetchTags = () => {
     const [tags, setTags] = useState([]);
 
     useEffect(() => {
-        axios.get('http://localhost:3001/tags')
+        axiosInstance.get('/tags')
             .then((response) => {
                 setTags(response.data);
             })
@@ -60,14 +60,22 @@ export const HomePage = () => {
     const tags = useFetchTags();
 
     const onLogoutBtnClick = () => {
-        removeUserSession();
-        setAuthState({token: null, name: null});
-        navigate(Paths.LOGIN_PATH);
+        axiosInstance.get('/logout')
+            .then((response) => {
+                message.success('Logged out successfully!');
+                removeUserSession();
+                setAuthState({user: null});
+                navigate(Paths.LOGIN_PATH);
+            })
+            .catch((error) => {
+                message.error('Logout failed!');
+                console.error(error);
+            });
     }
 
     const onSearch = text => {
         // todo: sync search with the url
-        axios.get(`http://localhost:3001/notes?search=${text}`)
+        axiosInstance.get(`/notes?search=${text}`)
             .then((response) => {
                 setNotes(response.data);
             })
@@ -80,7 +88,7 @@ export const HomePage = () => {
     const onTagClick = (title) => {
         const titleWithoutHashtagSymbol = title.replace("#", "");
         // todo: sync search with the url
-        axios.get(`http://localhost:3001/notes?tag=${titleWithoutHashtagSymbol}`)
+        axiosInstance.get(`/notes?tag=${titleWithoutHashtagSymbol}`)
             .then((response) => {
                 setNotes(response.data);
             })

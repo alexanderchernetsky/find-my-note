@@ -7,19 +7,12 @@ export const getUser = () => {
   return null;
 };
 
-// return the token from the local storage
-export const getToken = () => {
-  return localStorage.getItem("token") || null;
-};
-
-// remove the token and user from the local storage
+// remove the user from the local storage
 export const removeUserSession = () => {
-  localStorage.removeItem("token");
   localStorage.removeItem("user");
 };
 
-// set the token and user to the local storage
-export const setUserSession = (token, user) => {
-  localStorage.setItem("token", token);
-  localStorage.setItem("user", JSON.stringify(user));
+// set the user to the local storage
+export const setUserSession = (user) => {
+  localStorage.setItem("user", JSON.stringify(user));  // we don't want to store token in local storage for security reasons
 };

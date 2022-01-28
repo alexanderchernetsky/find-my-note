@@ -1,12 +1,13 @@
 import React, {useState} from 'react';
 import {Button, Form, Input, message} from "antd";
-import axios from "axios";
 import {CloseOutlined} from "@ant-design/icons";
 
 import Tag from "../Tag";
 import HASHTAG_REGEXP from "../../constants/regexp";
+import axiosInstance from "../../services/axios";
 
 import styles from './styles.module.scss';
+
 
 const { Item } = Form;
 const {TextArea} = Input;
@@ -28,7 +29,7 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
             if (isEditMode) {
                 // todo: remove hardcoded user_id
                 // update an existing note
-                axios.patch(`http://localhost:3001/note/${note.note_id}`, {
+                axiosInstance.patch(`/note/${note.note_id}`, {
                     user_id: 1,
                     heading: note_header,
                     text: note_content,
@@ -58,7 +59,7 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
             } else {
                 // create a new note
                 // todo: remove hardcoded user_id
-                axios.post('http://localhost:3001/note', {
+                axiosInstance.post('/note', {
                     user_id: 1,
                     heading: note_header,
                     text: note_content,
