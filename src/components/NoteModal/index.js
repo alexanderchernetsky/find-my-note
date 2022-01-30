@@ -1,10 +1,11 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {Button, Form, Input, message} from "antd";
 import {CloseOutlined} from "@ant-design/icons";
 
 import Tag from "../Tag";
 import HASHTAG_REGEXP from "../../constants/regexp";
 import axiosInstance from "../../services/axios";
+import {AuthContext} from "../../App";
 
 import styles from './styles.module.scss';
 
@@ -15,6 +16,10 @@ const {TextArea} = Input;
 const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
     const [isSubmitInProgress, setSubmitProgress] = useState(false);
     const [selectedTags, setSelectedTags] = useState([]);
+
+    const {authState} = useContext(AuthContext);
+
+    const user = authState.user;
 
     const isEditMode = !!note;
 
@@ -27,10 +32,9 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
             setSubmitProgress(true);
 
             if (isEditMode) {
-                // todo: remove hardcoded user_id
                 // update an existing note
                 axiosInstance.patch(`/note/${note.note_id}`, {
-                    user_id: 1,
+                    user_id: user.id,
                     heading: note_header,
                     text: note_content,
                     tags
@@ -47,6 +51,7 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
                         })
                         setNotes(newNotes);
                         message.success('You successfully updated a note!');
+                        onCloseHandler();
                     })
                     .catch((error) => {
                         message.error('You failed to update a note!');
@@ -54,13 +59,11 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
                     })
                     .finally(() => {
                         setSubmitProgress(false);
-                        onCloseHandler();
                     })
             } else {
                 // create a new note
-                // todo: remove hardcoded user_id
                 axiosInstance.post('/note', {
-                    user_id: 1,
+                    user_id: user.id,
                     heading: note_header,
                     text: note_content,
                     tags

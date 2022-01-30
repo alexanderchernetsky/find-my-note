@@ -24,8 +24,7 @@ function App() {
     useEffect(() => {
         const user = getUser();
         if (user) {
-            // TODO: replace with a real user
-            setAuthState({user: 'test_user'})
+            setAuthState({user: user.user})
         }
     }, []);
 

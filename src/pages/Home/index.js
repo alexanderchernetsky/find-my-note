@@ -18,6 +18,8 @@ const { Search } = Input;
 const useFetchNotes = () => {
     const [notes, setNotes] = useState([]);
 
+    // todo: add user id
+
     useEffect(() => {
         axiosInstance.get('/notes')
             .then((response) => {
@@ -35,6 +37,8 @@ const useFetchNotes = () => {
 const useFetchTags = () => {
     const [tags, setTags] = useState([]);
 
+    // todo: add user id
+
     useEffect(() => {
         axiosInstance.get('/tags')
             .then((response) => {
@@ -51,13 +55,15 @@ const useFetchTags = () => {
 
 export const HomePage = () => {
     const navigate = useNavigate();
-    const {setAuthState} = useContext(AuthContext);
+    const {authState, setAuthState} = useContext(AuthContext);
+
+    const user = authState.user;
 
     const [isNewNoteModalOpen, setIsNewNoteModalVisibility] = useState(false);
 
-    const [notes, setNotes] = useFetchNotes();
+    const [notes, setNotes] = useFetchNotes(user.id);
 
-    const tags = useFetchTags();
+    const tags = useFetchTags(user.id);
 
     const onLogoutBtnClick = () => {
         axiosInstance.get('/logout')
