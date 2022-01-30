@@ -1,4 +1,4 @@
-import {useContext} from "react";
+import {useContext, useState} from "react";
 import {Button, Form, Input, message} from "antd";
 import { useNavigate } from "react-router-dom";
 
@@ -16,22 +16,28 @@ export const LoginPage = () => {
     const navigate = useNavigate();
     const {setAuthState} = useContext(AuthContext);
 
+    const [loading, setLoading] = useState(false);
+
     const onFinish = (values) => {
         const {email, password} = values;
 
         if (email && password) {
-            // todo: add real user instead of a hardcoded one
-            axiosInstance.get('/login')
-                .then(() => {
+            setLoading(true);
+            axiosInstance.post('/login', {email, password})
+                .then((res) => {
                     message.success('Logged in successfully!');
-                    setUserSession({user: 'test_user'});
-                    setAuthState({user: 'test_user'})
+                    setUserSession({user: res.data.user});
+                    setAuthState({user: res.data.user.user_name})
                     navigate(Paths.HOME_PAGE_PATH);
                 })
                 .catch((error) => {
-                    message.error('Login failed!');
+                    const msg = error.response?.data?.message;
+                    message.error(`Login failed. ${msg ? msg : ''}`);
                     console.error(error);
-                });
+                })
+                .finally(() => {
+                    setLoading(false);
+                })
         }
     };
 
@@ -71,7 +77,7 @@ export const LoginPage = () => {
                     <Button
                         type="primary"
                         htmlType="submit"
-                        loading={false} // todo: set loading state
+                        loading={loading}
                         className={styles.loginFormButton}
                     >
                         Submit

@@ -6,10 +6,10 @@ import parse from 'html-react-parser';
 import ConfirmationModal from "../ConfirmationModal";
 import NoteModal from "../NoteModal";
 import HASHTAG_REGEXP from "../../constants/regexp";
+import axiosInstance from "../../services/axios";
 
 import './styles.css';
 import styles from './styles.module.scss';
-import axiosInstance from "../../services/axios";
 
 const { Meta } = Card;
 
