@@ -2,6 +2,7 @@ import {useState} from "react";
 import {Card, message, Tooltip} from 'antd';
 import { EditOutlined, DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import parse from 'html-react-parser';
+import moment from "moment";
 
 import ConfirmationModal from "../ConfirmationModal";
 import NoteModal from "../NoteModal";
@@ -47,8 +48,12 @@ const Note = ({note, hashtags, notes, setNotes}) => {
         setEditNoteModalVisible(true);
     }
 
-    // todo: transform dates to a readable format
-    const infoTooltipContent = `Created: ${date_created}. Last updated: ${last_updated}.`
+    const infoTooltipContent = () => (
+        <div>
+            <div>Created: {moment(date_created).format('MMMM Do YYYY')}</div>
+            <div>Last updated: {moment(last_updated).format('MMMM Do YYYY')}</div>
+        </div>
+    )
 
     return (
         <>
