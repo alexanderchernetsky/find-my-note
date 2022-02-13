@@ -1,5 +1,5 @@
 import {useContext, useEffect, useState} from "react";
-import {Button, Input, message, Avatar, Menu, Dropdown, Spin, Space} from "antd";
+import {Button, Input, message, Avatar, Menu, Dropdown, Spin, Space, Empty} from "antd";
 import {useNavigate} from "react-router-dom";
 import { PlusOutlined, UserOutlined, DownOutlined } from '@ant-design/icons';
 
@@ -34,6 +34,7 @@ const handle401Error = ({error, setAuthState, navigate}) => {
 const useFetchNotes = (id) => {
     const [notes, setNotes] = useState([]);
     const [loadingNotes, setLoadingNotes] = useState(false);
+    const [notesCount, setNotesCount] = useState(0);
     const navigate = useNavigate();
     const {setAuthState} = useContext(AuthContext);
 
@@ -42,6 +43,7 @@ const useFetchNotes = (id) => {
         axiosInstance.get(`/notes?user_id=${id}`)
             .then((response) => {
                 setNotes(response.data.notes);
+                setNotesCount(response.data.count);
             })
             .catch((error) => {
                 message.error('Error. Failed to fetch notes!');
@@ -51,9 +53,9 @@ const useFetchNotes = (id) => {
             .finally(() => {
                 setLoadingNotes(false);
             });
-    }, [navigate, setAuthState]);
+    }, [navigate, setAuthState, id]);
 
-    return [notes, setNotes, loadingNotes];
+    return [notes, setNotes, loadingNotes, notesCount, setNotesCount];
 }
 
 const useFetchTags = (id) => {
@@ -68,7 +70,7 @@ const useFetchTags = (id) => {
                 message.error('Error. Failed to fetch tags!');
                 console.error(error);
             });
-    }, []);
+    }, [id]);
 
     return tags;
 }
@@ -81,7 +83,9 @@ export const HomePage = () => {
 
     const [isNewNoteModalOpen, setIsNewNoteModalVisibility] = useState(false);
 
-    const [notes, setNotes, loadingNotes] = useFetchNotes(user.id);
+    const [sortOrder, setSortOrder] = useState('latest')
+
+    const [notes, setNotes, loadingNotes, notesCount, setNotesCount] = useFetchNotes(user.id);
 
     const tags = useFetchTags(user.id);
 
@@ -104,6 +108,7 @@ export const HomePage = () => {
         axiosInstance.get(`/notes?user_id=${user.id}&search=${text}`)
             .then((response) => {
                 setNotes(response.data.notes);
+                setNotesCount(response.data.count);
             })
             .catch((error) => {
                 message.error('Failed to search!');
@@ -117,6 +122,21 @@ export const HomePage = () => {
         axiosInstance.get(`/notes?user_id=${user.id}&tag=${titleWithoutHashtagSymbol}`)
             .then((response) => {
                 setNotes(response.data.notes);
+                setNotesCount(response.data.count);
+            })
+            .catch((error) => {
+                message.error('Failed to search!');
+                console.error(error);
+            });
+    }
+
+    const onSortingClick = (event) => {
+        setSortOrder(event.key);
+        const sortOrder = event.key === 'latest' ? 'desc' : 'asc';
+        axiosInstance.get(`/notes?user_id=${user.id}&sortBy=date&sortOrder=${sortOrder}`)
+            .then((response) => {
+                setNotes(response.data.notes);
+                setNotesCount(response.data.count);
             })
             .catch((error) => {
                 message.error('Failed to search!');
@@ -130,11 +150,22 @@ export const HomePage = () => {
 
     const menu = (
         <Menu>
-            <Menu.Item className={styles.logOut} onClick={onLogoutBtnClick}>
+            <Menu.Item key='Logout' className={styles.logOut} onClick={onLogoutBtnClick}>
                 <span>Log out</span>
             </Menu.Item>
         </Menu>
     );
+
+    const sortingMenu = (
+        <Menu>
+            <Menu.Item key='latest' className={styles.sortingMenuItem} onClick={onSortingClick}>
+                <span>latest</span>
+            </Menu.Item>
+            <Menu.Item key='oldest' className={styles.sortingMenuItem} onClick={onSortingClick}>
+                <span>oldest</span>
+            </Menu.Item>
+        </Menu>
+    )
 
 
     return (
@@ -142,10 +173,10 @@ export const HomePage = () => {
             <div className={styles.userAvatarWrapper}>
                 <Avatar shape="square" size={32} icon={<UserOutlined />} />
                 <Dropdown overlay={menu}>
-                    <a className="ant-dropdown-link" onClick={e => e.preventDefault()}>
+                    <span className="ant-dropdown-link" onClick={e => e.preventDefault()}>
                         <span className={styles.userName}>{user?.user_name}</span>
                         <DownOutlined />
-                    </a>
+                    </span>
                 </Dropdown>
             </div>
             <div className={styles.appTitle}>
@@ -178,6 +209,20 @@ export const HomePage = () => {
                         </Space>
                     ) : (
                         <>
+                            {notesCount === 0 ? (
+                                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                            ) : (
+                                <div className={styles.resultsCount}>
+                                    Found {notesCount} notes. Sort by last updated date:
+                                    <Dropdown overlay={sortingMenu} className={styles.sorting}>
+                                        <span className="ant-dropdown-link">
+                                            <span className={styles.userName}>{sortOrder}</span>
+                                            <DownOutlined />
+                                        </span>
+                                    </Dropdown>
+                                </div>
+                            )}
+
                             {notes && (
                                 notes.map(note => <Note key={note.note_id} note={note} hashtags={tags} notes={notes} setNotes={setNotes} />)
                             )}

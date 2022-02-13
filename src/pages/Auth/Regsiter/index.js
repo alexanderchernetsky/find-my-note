@@ -58,7 +58,7 @@ export const RegisterPage = () => {
             >
                 <Item
                     name="email"
-                    rules={[{ required: true, message: "Please input your email!" }]}
+                    rules={[{ required: true, message: "Please input your email!", type: 'email' }]}
                     className={styles.loginFormItem}
                 >
                     <Input className={styles.loginFormInput} placeholder="Email" />

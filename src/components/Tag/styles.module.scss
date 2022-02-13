@@ -1,8 +1,5 @@
-.tag, .selectedTag {
+.tag {
+  display: inline-block;
   cursor: pointer;
+  margin-bottom: 5px !important;
 }
-
-.selectedTag {
-  border: 3px solid #87e8de !important;
-}
-

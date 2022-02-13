@@ -28,6 +28,7 @@
 
 .tagsWrapper {
   height: 22px;
+  flex-wrap: wrap;
   margin-top: 20px;
   display: flex;
   flex-direction: row;
@@ -61,7 +62,16 @@
   color: #1890ff;
 }
 
-.logOut {
+.logOut, .sortingMenuItem {
   text-align: center;
+}
+
+.resultsCount {
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.sorting {
+  padding-left: 5px;
 }
 

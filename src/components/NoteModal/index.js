@@ -15,7 +15,6 @@ const {TextArea} = Input;
 
 const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
     const [isSubmitInProgress, setSubmitProgress] = useState(false);
-    const [selectedTags, setSelectedTags] = useState([]);
 
     const {authState} = useContext(AuthContext);
 
@@ -93,14 +92,8 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
     }
 
     const onTagClick = (tagTitle) => {
-        let newSelectedTags;
-        if (selectedTags.includes(tagTitle)) {
-            newSelectedTags = selectedTags.filter(item => item !== tagTitle);
-            setSelectedTags(newSelectedTags);
-        } else {
-            newSelectedTags = [...selectedTags, tagTitle];
-            setSelectedTags(newSelectedTags);
-        }
+        // copy to the clipboard
+        navigator.clipboard.writeText(tagTitle);
     }
 
     return (
@@ -142,7 +135,7 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
 
                     {hashtags && (
                         <div className={styles.tagsWrapper}>
-                            {hashtags.map((tag, index) => <Tag key={index} title={tag} onClick={onTagClick} isSelected={selectedTags.includes(tag)} /> )}
+                            {hashtags.slice(0, 15).map((tag, index) => <Tag key={index} title={tag} onClick={onTagClick} withTooltip={true} />)}
                         </div>
                     )}
 
