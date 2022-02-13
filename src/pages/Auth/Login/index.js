@@ -27,7 +27,7 @@ export const LoginPage = () => {
                 .then((res) => {
                     message.success('Logged in successfully!');
                     setUserSession({user: res.data.user});
-                    setAuthState({user: res.data.user.user_name})
+                    setAuthState({user: res.data.user});
                     navigate(Paths.HOME_PAGE_PATH);
                 })
                 .catch((error) => {

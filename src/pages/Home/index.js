@@ -1,7 +1,7 @@
 import {useContext, useEffect, useState} from "react";
-import {Button, Input, message} from "antd";
+import {Button, Input, message, Avatar, Menu, Dropdown} from "antd";
 import {useNavigate} from "react-router-dom";
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, UserOutlined, DownOutlined } from '@ant-design/icons';
 
 import {removeUserSession} from "../../helpers/authentication";
 import {Paths} from "../../constants/routes";
@@ -125,11 +125,25 @@ export const HomePage = () => {
         setIsNewNoteModalVisibility(true);
     }
 
+    const menu = (
+        <Menu>
+            <Menu.Item className={styles.logOut}>
+                <span onClick={onLogoutBtnClick}>Log out</span>
+            </Menu.Item>
+        </Menu>
+    );
+
     return (
         <div className={styles.mainPageWrapper}>
-            <Button onClick={onLogoutBtnClick} className={styles.logOutButton}>
-                Log out
-            </Button>
+            <div className={styles.userAvatarWrapper}>
+                <Avatar shape="square" size={32} icon={<UserOutlined />} />
+                <Dropdown overlay={menu}>
+                    <a className="ant-dropdown-link" onClick={e => e.preventDefault()}>
+                        <span className={styles.userName}>{user?.user_name}</span>
+                        <DownOutlined />
+                    </a>
+                </Dropdown>
+            </div>
             <div className={styles.appTitle}>
                 Find My Note
             </div>

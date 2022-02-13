@@ -16,12 +16,12 @@ export const RegisterPage = () => {
     const [loading, setLoading] = useState(false);
 
     const onFinish = (values) => {
-        const {email, password} = values;
+        const {email, password, user_name} = values;
 
-        if (email && password) {
+        if (email && password && user_name) {
             setLoading(true);
-            axiosInstance.post('/register', {email, password})
-                .then((res) => {
+            axiosInstance.post('/register', {email, password, user_name})
+                .then(() => {
                     message.success('Registered successfully!');
                     navigate(Paths.LOGIN_PATH);
                 })

@@ -7,13 +7,6 @@
   align-items: center;
 }
 
-.logOutButton {
-  position: absolute !important;
-  right: 0;
-  top: 0;
-  margin: 30px;
-}
-
 .contentWrapper {
   width: 60%;
   margin-bottom: 100px;
@@ -49,3 +42,24 @@
 .notesWrapper {
   margin-top: 50px;
 }
+
+.userAvatarWrapper {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 25px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.userName {
+  padding-right: 5px;
+  color: #1890ff;
+}
+
+.logOut {
+  text-align: center;
+}
+
