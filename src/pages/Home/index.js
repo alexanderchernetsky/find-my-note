@@ -31,16 +31,15 @@ const handle401Error = ({error, setAuthState, navigate}) => {
     }
 }
 
-const useFetchNotes = () => {
+const useFetchNotes = (id) => {
     const [notes, setNotes] = useState([]);
     const [loadingNotes, setLoadingNotes] = useState(false);
     const navigate = useNavigate();
     const {setAuthState} = useContext(AuthContext);
 
-    // todo: add user id
     useEffect(() => {
         setLoadingNotes(true);
-        axiosInstance.get('/notes')
+        axiosInstance.get(`/notes?user_id=${id}`)
             .then((response) => {
                 setNotes(response.data.notes);
             })
@@ -57,12 +56,11 @@ const useFetchNotes = () => {
     return [notes, setNotes, loadingNotes];
 }
 
-const useFetchTags = () => {
+const useFetchTags = (id) => {
     const [tags, setTags] = useState([]);
 
-    // todo: add user id
     useEffect(() => {
-        axiosInstance.get('/tags')
+        axiosInstance.get(`/tags?user_id=${id}`)
             .then((response) => {
                 setTags(response.data);
             })
@@ -103,9 +101,9 @@ export const HomePage = () => {
 
     const onSearch = text => {
         // todo: sync search with the url
-        axiosInstance.get(`/notes?search=${text}`)
+        axiosInstance.get(`/notes?user_id=${user.id}&search=${text}`)
             .then((response) => {
-                setNotes(response.data);
+                setNotes(response.data.notes);
             })
             .catch((error) => {
                 message.error('Failed to search!');
@@ -116,9 +114,9 @@ export const HomePage = () => {
     const onTagClick = (title) => {
         const titleWithoutHashtagSymbol = title.replace("#", "");
         // todo: sync search with the url
-        axiosInstance.get(`/notes?tag=${titleWithoutHashtagSymbol}`)
+        axiosInstance.get(`/notes?user_id=${user.id}&tag=${titleWithoutHashtagSymbol}`)
             .then((response) => {
-                setNotes(response.data);
+                setNotes(response.data.notes);
             })
             .catch((error) => {
                 message.error('Failed to search!');
@@ -132,8 +130,8 @@ export const HomePage = () => {
 
     const menu = (
         <Menu>
-            <Menu.Item className={styles.logOut}>
-                <span onClick={onLogoutBtnClick}>Log out</span>
+            <Menu.Item className={styles.logOut} onClick={onLogoutBtnClick}>
+                <span>Log out</span>
             </Menu.Item>
         </Menu>
     );
