@@ -2,12 +2,12 @@ import {useContext, useState} from "react";
 import {Button, Form, Input, message} from "antd";
 import { useNavigate } from "react-router-dom";
 
-import {setUserSession} from "../../helpers/authentication";
-import {Paths} from "../../constants/routes";
-import {AuthContext} from "../../App";
-import axiosInstance from "../../services/axios";
+import {setUserSession} from "../../../helpers/authentication";
+import {Paths} from "../../../constants/routes";
+import {AuthContext} from "../../../App";
+import axiosInstance from "../../../services/axios";
 
-import styles from './styles.module.scss';
+import styles from '../styles.module.scss';
 
 
 const { Item } = Form;
@@ -45,6 +45,10 @@ export const LoginPage = () => {
         console.error("Failed:", errorInfo);
     };
 
+    const onSignUpClick = () => {
+        navigate(Paths.REGISTER_PAGE_PATH);
+    }
+
     return (
         <div className={styles.loginPageWrapper}>
             <div className={styles.appTitle}>
@@ -62,7 +66,7 @@ export const LoginPage = () => {
                     rules={[{ required: true, message: "Please input your email!" }]}
                     className={styles.loginFormItem}
                 >
-                    <Input className={styles.loginFormInput} />
+                    <Input className={styles.loginFormInput} placeholder="Email" />
                 </Item>
 
                 <Item
@@ -70,7 +74,7 @@ export const LoginPage = () => {
                     rules={[{ required: true, message: "Please input your password!" }]}
                     className={styles.loginFormItem}
                 >
-                    <Input type="password" className={styles.loginFormInput} />
+                    <Input type="password" className={styles.loginFormInput} placeholder="Password" />
                 </Item>
 
                 <Item className={styles.loginFormItem}>
@@ -83,6 +87,11 @@ export const LoginPage = () => {
                         Submit
                     </Button>
                 </Item>
+
+                <div className={styles.signUpWrapper}>
+                    <div>Don&apos;t have an account yet?</div>
+                    <div className={styles.signUpLink} onClick={onSignUpClick}>Sign up!</div>
+                </div>
             </Form>
         </div>
     )

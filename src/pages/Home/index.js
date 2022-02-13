@@ -15,21 +15,39 @@ import styles from './styles.module.scss';
 
 const { Search } = Input;
 
+const handle401Error = ({error, setAuthState, navigate}) => {
+    if (error?.response?.status === 401) {
+        axiosInstance.get('/logout')
+            .then(() => {
+                message.success('Logged out successfully!');
+                removeUserSession();
+                setAuthState({user: null});
+                navigate(Paths.LOGIN_PATH);
+            })
+            .catch((error) => {
+                message.error('Logout failed!');
+                console.error(error);
+            });
+    }
+}
+
 const useFetchNotes = () => {
     const [notes, setNotes] = useState([]);
+    const navigate = useNavigate();
+    const {setAuthState} = useContext(AuthContext);
 
     // todo: add user id
-
     useEffect(() => {
         axiosInstance.get('/notes')
             .then((response) => {
-                setNotes(response.data);
+                setNotes(response.data.notes);
             })
             .catch((error) => {
                 message.error('Error. Failed to fetch notes!');
                 console.error(error);
+                handle401Error({error, setAuthState, navigate});
             });
-    }, []);
+    }, [navigate, setAuthState]);
 
     return [notes, setNotes];
 }
@@ -38,7 +56,6 @@ const useFetchTags = () => {
     const [tags, setTags] = useState([]);
 
     // todo: add user id
-
     useEffect(() => {
         axiosInstance.get('/tags')
             .then((response) => {

@@ -8,7 +8,8 @@ import {
 
 import {getUser} from "./helpers/authentication";
 import {HomePage} from "./pages/Home";
-import {LoginPage} from "./pages/Login";
+import {LoginPage} from "./pages/Auth/Login";
+import {RegisterPage} from "./pages/Auth/Regsiter";
 import {NotFound} from "./pages/NotFound";
 import {Paths} from "./constants/routes";
 
@@ -34,8 +35,9 @@ function App() {
                 <Routes>
                     <Route path="*" element={<NotFound />} />
                     <Route path="/" element={<Navigate replace to={Paths.HOME_PAGE_PATH} />} />
-                    {/* Public route: */}
+                    {/* Public routes: */}
                     <Route path={Paths.LOGIN_PATH} element={!user ? <LoginPage /> : <Navigate replace to={Paths.HOME_PAGE_PATH} />}/>
+                    <Route path={Paths.REGISTER_PAGE_PATH} element={!user ? <RegisterPage /> : <Navigate replace to={Paths.HOME_PAGE_PATH} />}/>
                     {/* Private route: */}
                     <Route path={Paths.HOME_PAGE_PATH} element={user ? <HomePage /> : <Navigate replace to={Paths.LOGIN_PATH} />}/>
                 </Routes>
