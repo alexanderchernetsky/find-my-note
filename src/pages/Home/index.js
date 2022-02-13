@@ -1,5 +1,5 @@
 import {useContext, useEffect, useState} from "react";
-import {Button, Input, message, Avatar, Menu, Dropdown} from "antd";
+import {Button, Input, message, Avatar, Menu, Dropdown, Spin, Space} from "antd";
 import {useNavigate} from "react-router-dom";
 import { PlusOutlined, UserOutlined, DownOutlined } from '@ant-design/icons';
 
@@ -33,11 +33,13 @@ const handle401Error = ({error, setAuthState, navigate}) => {
 
 const useFetchNotes = () => {
     const [notes, setNotes] = useState([]);
+    const [loadingNotes, setLoadingNotes] = useState(false);
     const navigate = useNavigate();
     const {setAuthState} = useContext(AuthContext);
 
     // todo: add user id
     useEffect(() => {
+        setLoadingNotes(true);
         axiosInstance.get('/notes')
             .then((response) => {
                 setNotes(response.data.notes);
@@ -46,10 +48,13 @@ const useFetchNotes = () => {
                 message.error('Error. Failed to fetch notes!');
                 console.error(error);
                 handle401Error({error, setAuthState, navigate});
+            })
+            .finally(() => {
+                setLoadingNotes(false);
             });
     }, [navigate, setAuthState]);
 
-    return [notes, setNotes];
+    return [notes, setNotes, loadingNotes];
 }
 
 const useFetchTags = () => {
@@ -78,7 +83,7 @@ export const HomePage = () => {
 
     const [isNewNoteModalOpen, setIsNewNoteModalVisibility] = useState(false);
 
-    const [notes, setNotes] = useFetchNotes(user.id);
+    const [notes, setNotes, loadingNotes] = useFetchNotes(user.id);
 
     const tags = useFetchTags(user.id);
 
@@ -133,6 +138,7 @@ export const HomePage = () => {
         </Menu>
     );
 
+
     return (
         <div className={styles.mainPageWrapper}>
             <div className={styles.userAvatarWrapper}>
@@ -168,8 +174,16 @@ export const HomePage = () => {
                 </div>
 
                 <div className={styles.notesWrapper}>
-                    {notes && (
-                        notes.map(note => <Note key={note.note_id} note={note} hashtags={tags} notes={notes} setNotes={setNotes} />)
+                    {loadingNotes ? (
+                        <Space size="large" align={'center'}>
+                            <Spin size="large" />
+                        </Space>
+                    ) : (
+                        <>
+                            {notes && (
+                                notes.map(note => <Note key={note.note_id} note={note} hashtags={tags} notes={notes} setNotes={setNotes} />)
+                            )}
+                        </>
                     )}
                 </div>
             </div>
