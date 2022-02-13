@@ -135,7 +135,7 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
 
                     {hashtags && (
                         <div className={styles.tagsWrapper}>
-                            {hashtags.slice(0, 15).map((tag, index) => <Tag key={index} title={tag} onClick={onTagClick} withTooltip={true} />)}
+                            {hashtags.slice(0, 15).map((tag, index) => <Tag key={index} title={tag} onClick={onTagClick} tooltipTitle='Click to copy' />)}
                         </div>
                     )}
 
