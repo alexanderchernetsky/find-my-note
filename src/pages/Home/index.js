@@ -1,5 +1,5 @@
 import {useContext, useEffect, useState} from "react";
-import {Button, Input, message, Avatar, Menu, Dropdown, Spin, Space, Empty} from "antd";
+import {Button, Input, message, Avatar, Menu, Dropdown, Spin, Space, Empty, Pagination} from "antd";
 import {useNavigate} from "react-router-dom";
 import { PlusOutlined, UserOutlined, DownOutlined } from '@ant-design/icons';
 
@@ -14,6 +14,8 @@ import axiosInstance from "../../services/axios";
 import styles from './styles.module.scss';
 
 const { Search } = Input;
+
+const NOTES_PER_PAGE = 5;
 
 const handle401Error = ({error, setAuthState, navigate}) => {
     if (error?.response?.status === 401) {
@@ -31,19 +33,23 @@ const handle401Error = ({error, setAuthState, navigate}) => {
     }
 }
 
-const useFetchNotes = (id) => {
+const useFetchNotes = (id, page) => {
     const [notes, setNotes] = useState([]);
     const [loadingNotes, setLoadingNotes] = useState(false);
     const [notesCount, setNotesCount] = useState(0);
+    const [totalPages, setTotalPages] = useState(1);
+    const [currentPage, setCurrentPage] = useState(1);
     const navigate = useNavigate();
     const {setAuthState} = useContext(AuthContext);
 
     useEffect(() => {
         setLoadingNotes(true);
-        axiosInstance.get(`/notes?user_id=${id}`)
+        axiosInstance.get(`/notes?user_id=${id}&page=${page || 1}&limit=${NOTES_PER_PAGE}`)
             .then((response) => {
                 setNotes(response.data.notes);
-                setNotesCount(response.data.count);
+                setNotesCount(response.data.totalNotes);
+                setTotalPages(response.data.totalPages);
+                setCurrentPage(response.data.currentPage);
             })
             .catch((error) => {
                 message.error('Error. Failed to fetch notes!');
@@ -53,9 +59,9 @@ const useFetchNotes = (id) => {
             .finally(() => {
                 setLoadingNotes(false);
             });
-    }, [navigate, setAuthState, id]);
+    }, [navigate, setAuthState, id, page]);
 
-    return [notes, setNotes, loadingNotes, notesCount, setNotesCount];
+    return [notes, setNotes, loadingNotes, setLoadingNotes, notesCount, setNotesCount, totalPages, setTotalPages, currentPage, setCurrentPage];
 }
 
 const useFetchTags = (id) => {
@@ -83,15 +89,15 @@ export const HomePage = () => {
 
     const [isNewNoteModalOpen, setIsNewNoteModalVisibility] = useState(false);
 
-    const [sortOrder, setSortOrder] = useState('latest')
+    const [sortOrder, setSortOrder] = useState('latest');
 
-    const [notes, setNotes, loadingNotes, notesCount, setNotesCount] = useFetchNotes(user.id);
+    const [notes, setNotes, loadingNotes, setLoadingNotes, notesCount, setNotesCount, totalPages, setTotalPages, currentPage, setCurrentPage] = useFetchNotes(user.id);
 
     const tags = useFetchTags(user.id);
 
     const onLogoutBtnClick = () => {
         axiosInstance.get('/logout')
-            .then((response) => {
+            .then(() => {
                 message.success('Logged out successfully!');
                 removeUserSession();
                 setAuthState({user: null});
@@ -148,6 +154,27 @@ export const HomePage = () => {
         setIsNewNoteModalVisibility(true);
     }
 
+    const onPaginationChange = (page) => {
+        console.log("page", page);
+
+        setLoadingNotes(true);
+        axiosInstance.get(`/notes?user_id=${user.id}&page=${page}&limit=${NOTES_PER_PAGE}`)
+            .then((response) => {
+                setNotes(response.data.notes);
+                setCurrentPage(response.data.currentPage);
+                setNotesCount(response.data.totalNotes);
+                setTotalPages(response.data.totalPages);
+            })
+            .catch((error) => {
+                message.error('Error. Failed to fetch notes!');
+                console.error(error);
+                handle401Error({error, setAuthState, navigate});
+            })
+            .finally(() => {
+                setLoadingNotes(false);
+            });
+    }
+
     const menu = (
         <Menu>
             <Menu.Item key='Logout' className={styles.logOut} onClick={onLogoutBtnClick}>
@@ -165,7 +192,7 @@ export const HomePage = () => {
                 <span>oldest</span>
             </Menu.Item>
         </Menu>
-    )
+    );
 
 
     return (
@@ -175,7 +202,7 @@ export const HomePage = () => {
                 <Dropdown overlay={menu}>
                     <span className="ant-dropdown-link" onClick={e => e.preventDefault()}>
                         <span className={styles.userName}>{user?.user_name}</span>
-                        <DownOutlined />
+                        <DownOutlined className={styles.downIcon} />
                     </span>
                 </Dropdown>
             </div>
@@ -225,6 +252,10 @@ export const HomePage = () => {
 
                             {notes && (
                                 notes.map(note => <Note key={note.note_id} note={note} hashtags={tags} notes={notes} setNotes={setNotes} />)
+                            )}
+
+                            {notesCount !== 0 && (
+                                <Pagination defaultCurrent={1} current={currentPage} total={notesCount} pageSize={NOTES_PER_PAGE} onChange={onPaginationChange} />
                             )}
                         </>
                     )}

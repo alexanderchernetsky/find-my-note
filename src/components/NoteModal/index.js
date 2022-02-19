@@ -3,9 +3,9 @@ import {Button, Form, Input, message} from "antd";
 import {CloseOutlined} from "@ant-design/icons";
 
 import Tag from "../Tag";
-import HASHTAG_REGEXP from "../../constants/regexp";
 import axiosInstance from "../../services/axios";
 import {AuthContext} from "../../App";
+import {getTags} from "../../helpers/getTags";
 
 import styles from './styles.module.scss';
 
@@ -26,7 +26,7 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
         const {note_header, note_content} = values;
 
         if (note_header && note_content) {
-            const tags = [...note_content.matchAll(HASHTAG_REGEXP)].map(item => item[2]);
+            const tags = getTags(note_content);
 
             setSubmitProgress(true);
 
@@ -72,8 +72,7 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
                         message.success('You successfully created a new note!');
                     })
                     .catch((error) => {
-                        message.error('You failed to create a new note!');
-                        console.error(error);
+                        message.error(`You failed to create a new note! ${error?.response?.data?.message}`);
                     })
                     .finally(() => {
                         setSubmitProgress(false);
@@ -114,7 +113,7 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
                 >
                     <Item
                         name="note_header"
-                        rules={[{ required: true, message: "Please input header!" }]}
+                        rules={[{ required: true, message: "Please input heading!" }]}
                         className={styles.noteFormItem}
                         label="Note heading"
                         labelAlign="left"
@@ -124,7 +123,15 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
 
                     <Item
                         name="note_content"
-                        rules={[{ required: true, message: "Please input content!" }]}
+                        rules={[
+                            {validator: (_, value) => {
+                                if (!value) {
+                                    return  Promise.reject(new Error('Please input content!'));
+
+                                }
+                                const tags = getTags(value);
+                                return tags.length ? Promise.resolve() : Promise.reject(new Error('Please add at least one hashtag!'))
+                            }}]}
                         className={styles.noteFormItem}
                         label="Note content"
                         labelAlign="left"

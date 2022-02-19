@@ -58,8 +58,13 @@
 }
 
 .userName {
+  cursor: pointer;
   padding-right: 5px;
   color: #1890ff;
+}
+
+.downIcon {
+  cursor: pointer;
 }
 
 .logOut, .sortingMenuItem {
