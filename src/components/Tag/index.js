@@ -13,7 +13,7 @@ const TagComponent = ({title, onClick, tooltipTitle, isHomePage = false}) => {
 
     return (
         <Tooltip placement="top" title={tooltipTitle}>
-            <Tag color="cyan" onClick={() => onClick(title)} className={clsx(styles.tag, isSelected && styles.selectedTag)}>{title}</Tag>
+            <Tag onClick={() => onClick(title)} className={clsx(styles.tag, isSelected && styles.selectedTag)}>{title}</Tag>
         </Tooltip>
     );
 }

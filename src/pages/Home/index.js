@@ -1,7 +1,7 @@
 import {useCallback, useContext, useEffect, useReducer} from "react";
 import {Button, Input, message, Avatar, Menu, Dropdown, Spin, Space, Empty, Pagination} from "antd";
 import {useNavigate, useSearchParams} from "react-router-dom"; // no history in react-router-dom v6
-import {PlusOutlined, UserOutlined, DownOutlined, UndoOutlined} from '@ant-design/icons';
+import {PlusOutlined, DownOutlined, UndoOutlined} from '@ant-design/icons';
 
 import {removeUserSession} from "../../helpers/authentication";
 import {Paths} from "../../constants/routes";
@@ -264,18 +264,30 @@ export const HomePage = () => {
 
     return (
         <div className={styles.mainPageWrapper}>
-            <div className={styles.userAvatarWrapper}>
-                <Avatar shape="square" size={32} icon={<UserOutlined />} />
-                <Dropdown overlay={menu}>
-                    <span className="ant-dropdown-link" onClick={e => e.preventDefault()}>
+            <header className={styles.header}>
+                <div className={styles.headerMenu}>
+                    <div className={styles.appTitle}>
+                        #FindMyNote
+                    </div>
+
+                    <div>
                         <span className={styles.userName}>{user?.user_name}</span>
-                        <DownOutlined className={styles.downIcon} />
-                    </span>
-                </Dropdown>
-            </div>
-            <div className={styles.appTitle}>
-                Find My Note
-            </div>
+                        <Dropdown overlay={menu}>
+                            <Avatar
+                                className={styles.avatar}
+                                size={40}
+                                style={{
+                                    backgroundImage: 'linear-gradient(332.32deg,#ff5b8c .01%,#edbc0d 83.78%)',
+                                    verticalAlign: 'middle',
+                                }}
+                            >
+                                {user.user_name?.charAt(0)}
+                            </Avatar>
+                        </Dropdown>
+                    </div>
+                </div>
+            </header>
+
             <div className={styles.contentWrapper}>
                 <div className={styles.searchWrapper}>
                     <Search
@@ -287,7 +299,7 @@ export const HomePage = () => {
                         defaultValue={urlSearchParams.search || ''}
                     />
                     <Button type="primary" size="large" icon={<PlusOutlined />} className={styles.addNewNoteButton} onClick={onAddNewNoteBtnClick}>
-                        Add new note
+                        New note
                     </Button>
                     {!isResetBtnHidden && (
                             <Button type="primary" size="large" icon={<UndoOutlined />} className={styles.addNewNoteButton} onClick={onResetBtnClick}>
@@ -314,10 +326,10 @@ export const HomePage = () => {
                                 <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
                             ) : (
                                 <div className={styles.resultsCount}>
-                                    Found: {notesCount} notes. Page {currentPage} from {totalPages}. Sort by last updated date:
+                                    Found: {notesCount} notes. Page {currentPage} from {totalPages}. Sort by:
                                     <Dropdown overlay={sortingMenu} className={styles.sorting}>
                                         <span className="ant-dropdown-link">
-                                            <span className={styles.userName}>{sortOrder}</span>
+                                            <span className={styles.sortOrderName}>{sortOrder}</span>
                                             <DownOutlined />
                                         </span>
                                     </Dropdown>
