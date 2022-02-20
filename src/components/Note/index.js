@@ -8,16 +8,17 @@ import ConfirmationModal from "../ConfirmationModal";
 import NoteModal from "../NoteModal";
 import HASHTAG_REGEXP from "../../constants/regexp";
 import axiosInstance from "../../services/axios";
+import {homePageActionTypes} from "../../pages/Home";
 
 import './styles.css';
 import styles from './styles.module.scss';
 
 const { Meta } = Card;
 
-const Note = ({note, hashtags, notes, setNotes}) => {
+const Note = ({note, hashtags, dispatch}) => {
     const {note_id, heading, text, date_created, last_updated} = note;
 
-    const [isModalVisible, setModalVisibility] = useState(false);
+    const [isDeleteModalVisible, setDeleteModalVisibility] = useState(false);
     const [isEditNoteModalVisible, setEditNoteModalVisible] = useState(false);
 
     // highlight hashtags
@@ -25,14 +26,16 @@ const Note = ({note, hashtags, notes, setNotes}) => {
     const parsedContent = parse(contentWithHighlight);
 
     const onDeleteBtnClick = () => {
-        setModalVisibility(true);
+        setDeleteModalVisibility(true);
     }
 
     const deleteModal = note_id => {
         axiosInstance.delete(`/note/${note_id}`)
             .then(() => {
-                const newNotes = notes.filter(item => item.note_id !== note_id);
-                setNotes(newNotes);
+                dispatch({
+                    type: homePageActionTypes.REMOVE_NOTE,
+                    payload: note_id
+                });
                 message.success('You successfully deleted a note!');
             })
             .catch((error) => {
@@ -40,7 +43,7 @@ const Note = ({note, hashtags, notes, setNotes}) => {
                 console.error(error);
             })
             .finally(() => {
-                setModalVisibility(false);
+                setDeleteModalVisibility(false);
             })
     }
 
@@ -72,11 +75,11 @@ const Note = ({note, hashtags, notes, setNotes}) => {
                 />
             </Card>
 
-            {isModalVisible && (
-                <ConfirmationModal text={`Do you want to delete note "${heading}"?`} onCancel={() => setModalVisibility(false)} onOk={() => deleteModal(note_id)} />
+            {isDeleteModalVisible && (
+                <ConfirmationModal text={`Do you want to delete note "${heading}"?`} onCancel={() => setDeleteModalVisibility(false)} onOk={() => deleteModal(note_id)} />
             )}
 
-            {isEditNoteModalVisible && <NoteModal onCloseHandler={() => setEditNoteModalVisible(false)} note={note} hashtags={hashtags} notes={notes} setNotes={setNotes} />}
+            {isEditNoteModalVisible && <NoteModal onCloseHandler={() => setEditNoteModalVisible(false)} note={note} hashtags={hashtags} dispatch={dispatch} />}
         </>
 
     )

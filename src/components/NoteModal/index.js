@@ -6,14 +6,14 @@ import Tag from "../Tag";
 import axiosInstance from "../../services/axios";
 import {AuthContext} from "../../App";
 import {getTags} from "../../helpers/getTags";
+import {homePageActionTypes} from "../../pages/Home";
 
 import styles from './styles.module.scss';
-
 
 const { Item } = Form;
 const {TextArea} = Input;
 
-const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
+const NoteModal = ({onCloseHandler, hashtags, note, dispatch}) => {
     const [isSubmitInProgress, setSubmitProgress] = useState(false);
 
     const {authState} = useContext(AuthContext);
@@ -25,9 +25,9 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
     const onFinish = (values) => {
         const {note_header, note_content} = values;
 
-        if (note_header && note_content) {
-            const tags = getTags(note_content);
+        const tags = getTags(note_content);
 
+        if (note_header && note_content && tags.length) {
             setSubmitProgress(true);
 
             if (isEditMode) {
@@ -39,16 +39,10 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
                     tags
                 })
                     .then((response) => {
-                        const newNotes = notes.map(item => {
-                            if (item.note_id === note.note_id) {
-                                return {
-                                    ...item,
-                                    ...response.data.values
-                                }
-                            }
-                            return item;
-                        })
-                        setNotes(newNotes);
+                        dispatch({
+                            type: homePageActionTypes.UPDATE_EXISTING_NOTE,
+                            payload: {...response.data.values, note_id: note.note_id}
+                        });
                         message.success('You successfully updated a note!');
                         onCloseHandler();
                     })
@@ -58,7 +52,7 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
                     })
                     .finally(() => {
                         setSubmitProgress(false);
-                    })
+                    });
             } else {
                 // create a new note
                 axiosInstance.post('/note', {
@@ -66,18 +60,20 @@ const NoteModal = ({onCloseHandler, hashtags, note, notes, setNotes}) => {
                     heading: note_header,
                     text: note_content,
                     tags
-                })
-                    .then((response) => {
-                        setNotes([response.data.note, ...notes]);
+                }).then((response) => {
+                        dispatch({
+                            type: homePageActionTypes.ADD_NEW_NOTE,
+                            payload: {...response.data.note}
+                        });
                         message.success('You successfully created a new note!');
+                        onCloseHandler();
                     })
                     .catch((error) => {
                         message.error(`You failed to create a new note! ${error?.response?.data?.message}`);
                     })
                     .finally(() => {
                         setSubmitProgress(false);
-                        onCloseHandler();
-                    })
+                    });
             }
         }
     };

@@ -1,7 +1,7 @@
-import {useContext, useEffect, useState} from "react";
+import {useCallback, useContext, useEffect, useReducer} from "react";
 import {Button, Input, message, Avatar, Menu, Dropdown, Spin, Space, Empty, Pagination} from "antd";
-import {useNavigate} from "react-router-dom";
-import { PlusOutlined, UserOutlined, DownOutlined } from '@ant-design/icons';
+import {useNavigate, useSearchParams} from "react-router-dom"; // no history in react-router-dom v6
+import {PlusOutlined, UserOutlined, DownOutlined, UndoOutlined} from '@ant-design/icons';
 
 import {removeUserSession} from "../../helpers/authentication";
 import {Paths} from "../../constants/routes";
@@ -10,6 +10,9 @@ import Tag from "../../components/Tag";
 import NoteModal from "../../components/NoteModal";
 import Note from "../../components/Note";
 import axiosInstance from "../../services/axios";
+import getUrlSearchParams from "../../helpers/getUrlParams";
+import createSearchString from "../../helpers/createSearchString";
+import handle401Error from "../../helpers/handle401Error";
 
 import styles from './styles.module.scss';
 
@@ -17,39 +20,144 @@ const { Search } = Input;
 
 const NOTES_PER_PAGE = 5;
 
-const handle401Error = ({error, setAuthState, navigate}) => {
-    if (error?.response?.status === 401) {
-        axiosInstance.get('/logout')
-            .then(() => {
-                message.success('Logged out successfully!');
-                removeUserSession();
-                setAuthState({user: null});
-                navigate(Paths.LOGIN_PATH);
-            })
-            .catch((error) => {
-                message.error('Logout failed!');
-                console.error(error);
+export const initialState = {
+    notes: [],
+    notesCount: 0,
+    totalPages: 1,
+    loadingNotes: false,
+    tags: [],
+    isNewNoteModalOpen: false
+}
+
+export const homePageActionTypes = {
+    SET_NOTES_LOADING: 'SET_NOTES_LOADING',
+    SET_NOTES: 'SET_NOTES',
+    REMOVE_NOTE: 'REMOVE_NOTE',
+    UPDATE_EXISTING_NOTE: 'UPDATE_EXISTING_NOTE',
+    ADD_NEW_NOTE: 'ADD_NEW_NOTE',
+    SET_TAGS: 'SET_TAGS',
+    SET_SORT_ORDER: 'SET_SORT_ORDER',
+    SET_NOTE_MODAL_VISIBILITY: 'SET_NOTE_MODAL_VISIBILITY'
+}
+
+export const homePageReducer = (state, action) => {
+    switch (action.type) {
+        case homePageActionTypes.SET_NOTES_LOADING:
+            return {...state, loadingNotes: action.payload};
+        case homePageActionTypes.SET_NOTES:
+            return {
+                ...state,
+                notes: action.payload.notes,
+                notesCount: action.payload.totalNotes,
+                totalPages: action.payload.totalPages
+            };
+        case homePageActionTypes.SET_TAGS:
+            return {
+                ...state,
+                tags: action.payload
+            };
+        case homePageActionTypes.SET_SORT_ORDER:
+            return {
+                ...state,
+                tags: action.payload
+            };
+        case homePageActionTypes.SET_NOTE_MODAL_VISIBILITY:
+            return {
+                ...state,
+                isNewNoteModalOpen: action.payload
+            };
+
+        case homePageActionTypes.REMOVE_NOTE: {
+            const newNotes = state.notes.filter(item => item.note_id !== action.payload);
+            return {
+                ...state,
+                notes: newNotes,
+                notesCount: state.notesCount - 1,
+            };
+        }
+
+        case homePageActionTypes.UPDATE_EXISTING_NOTE: {
+            const newNotes = state.notes.map(item => {
+                if (item.note_id === action.payload.note_id) {
+                    return {
+                        ...item,
+                        ...action.payload
+                    }
+                }
+                return item;
             });
+
+            return {
+                ...state,
+                notes: newNotes
+            }
+        }
+
+        case homePageActionTypes.ADD_NEW_NOTE: {
+            return {
+                ...state,
+                notes: [action.payload, ...state.notes],
+                notesCount: state.notesCount + 1,
+            }
+        }
+
+
+        default: {
+            console.error("Unexpected action type in homePageReducer!")
+            return state;
+        }
     }
 }
 
-const useFetchNotes = (id, page) => {
-    const [notes, setNotes] = useState([]);
-    const [loadingNotes, setLoadingNotes] = useState(false);
-    const [notesCount, setNotesCount] = useState(0);
-    const [totalPages, setTotalPages] = useState(1);
-    const [currentPage, setCurrentPage] = useState(1);
+export const HomePage = () => {
     const navigate = useNavigate();
-    const {setAuthState} = useContext(AuthContext);
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const {authState, setAuthState} = useContext(AuthContext);
+    const user = authState.user;
+
+    const [state, dispatch] = useReducer(homePageReducer, initialState);
+
+    const {notes, notesCount, totalPages, loadingNotes, tags, isNewNoteModalOpen} = state;
 
     useEffect(() => {
-        setLoadingNotes(true);
-        axiosInstance.get(`/notes?user_id=${id}&page=${page || 1}&limit=${NOTES_PER_PAGE}`)
+        axiosInstance.get(`/tags?user_id=${user?.id}`)
             .then((response) => {
-                setNotes(response.data.notes);
-                setNotesCount(response.data.totalNotes);
-                setTotalPages(response.data.totalPages);
-                setCurrentPage(response.data.currentPage);
+                dispatch({
+                    type: homePageActionTypes.SET_TAGS,
+                    payload: response.data
+                });
+            })
+            .catch((error) => {
+                message.error('Error. Failed to fetch tags!');
+                console.error(error);
+            });
+    }, [user?.id]);
+
+    useEffect(() => {
+        const urlParams = getUrlSearchParams();
+
+        const searchString = createSearchString({
+            user_id: user?.id,
+            ...urlParams,
+            limit: NOTES_PER_PAGE
+        });
+
+        dispatch({
+            type: homePageActionTypes.SET_NOTES_LOADING,
+            payload: true
+        });
+
+        axiosInstance.get(`/notes${searchString}`)
+            .then((response) => {
+                dispatch({
+                    type: homePageActionTypes.SET_NOTES,
+                    payload: {
+                        notes: response.data.notes,
+                        totalNotes: response.data.totalNotes,
+                        totalPages: response.data.totalPages
+                    }
+                });
             })
             .catch((error) => {
                 message.error('Error. Failed to fetch notes!');
@@ -57,43 +165,12 @@ const useFetchNotes = (id, page) => {
                 handle401Error({error, setAuthState, navigate});
             })
             .finally(() => {
-                setLoadingNotes(false);
+                dispatch({
+                    type: homePageActionTypes.SET_NOTES_LOADING,
+                    payload: false
+                });
             });
-    }, [navigate, setAuthState, id, page]);
-
-    return [notes, setNotes, loadingNotes, setLoadingNotes, notesCount, setNotesCount, totalPages, setTotalPages, currentPage, setCurrentPage];
-}
-
-const useFetchTags = (id) => {
-    const [tags, setTags] = useState([]);
-
-    useEffect(() => {
-        axiosInstance.get(`/tags?user_id=${id}`)
-            .then((response) => {
-                setTags(response.data);
-            })
-            .catch((error) => {
-                message.error('Error. Failed to fetch tags!');
-                console.error(error);
-            });
-    }, [id]);
-
-    return tags;
-}
-
-export const HomePage = () => {
-    const navigate = useNavigate();
-    const {authState, setAuthState} = useContext(AuthContext);
-
-    const user = authState.user;
-
-    const [isNewNoteModalOpen, setIsNewNoteModalVisibility] = useState(false);
-
-    const [sortOrder, setSortOrder] = useState('latest');
-
-    const [notes, setNotes, loadingNotes, setLoadingNotes, notesCount, setNotesCount, totalPages, setTotalPages, currentPage, setCurrentPage] = useFetchNotes(user.id);
-
-    const tags = useFetchTags(user.id);
+    }, [navigate, setAuthState, user?.id, searchParams]);
 
     const onLogoutBtnClick = () => {
         axiosInstance.get('/logout')
@@ -110,69 +187,54 @@ export const HomePage = () => {
     }
 
     const onSearch = text => {
-        // todo: sync search with the url
-        axiosInstance.get(`/notes?user_id=${user.id}&search=${text}`)
-            .then((response) => {
-                setNotes(response.data.notes);
-                setNotesCount(response.data.count);
-            })
-            .catch((error) => {
-                message.error('Failed to search!');
-                console.error(error);
-            });
+        const oldUrlParams = getUrlSearchParams();
+        if (oldUrlParams.tag) {
+            delete oldUrlParams.tag;
+        }
+        if (text.length) {
+            setSearchParams({...oldUrlParams, search: text, page: 1});
+        } else {
+            delete oldUrlParams.search;
+            setSearchParams({...oldUrlParams, page: 1});
+        }
     }
 
     const onTagClick = (title) => {
         const titleWithoutHashtagSymbol = title.replace("#", "");
-        // todo: sync search with the url
-        axiosInstance.get(`/notes?user_id=${user.id}&tag=${titleWithoutHashtagSymbol}`)
-            .then((response) => {
-                setNotes(response.data.notes);
-                setNotesCount(response.data.count);
-            })
-            .catch((error) => {
-                message.error('Failed to search!');
-                console.error(error);
-            });
+        const oldUrlParams = getUrlSearchParams();
+        if (oldUrlParams.search) {
+            delete oldUrlParams.search;
+        }
+        setSearchParams({...oldUrlParams, tag: titleWithoutHashtagSymbol, page: 1});
     }
 
     const onSortingClick = (event) => {
-        setSortOrder(event.key);
+        const oldUrlParams = getUrlSearchParams();
         const sortOrder = event.key === 'latest' ? 'desc' : 'asc';
-        axiosInstance.get(`/notes?user_id=${user.id}&sortBy=date&sortOrder=${sortOrder}`)
-            .then((response) => {
-                setNotes(response.data.notes);
-                setNotesCount(response.data.count);
-            })
-            .catch((error) => {
-                message.error('Failed to search!');
-                console.error(error);
-            });
+        setSearchParams({...oldUrlParams, sortBy: 'date', sortOrder: sortOrder, page: 1});
     }
 
     const onAddNewNoteBtnClick = () => {
-        setIsNewNoteModalVisibility(true);
+        dispatch({
+            type: homePageActionTypes.SET_NOTE_MODAL_VISIBILITY,
+            payload: true
+        })
     }
 
     const onPaginationChange = (page) => {
-        console.log("page", page);
+        const oldUrlParams = getUrlSearchParams();
+        setSearchParams({...oldUrlParams, page});
+    }
 
-        setLoadingNotes(true);
-        axiosInstance.get(`/notes?user_id=${user.id}&page=${page}&limit=${NOTES_PER_PAGE}`)
-            .then((response) => {
-                setNotes(response.data.notes);
-                setCurrentPage(response.data.currentPage);
-                setNotesCount(response.data.totalNotes);
-                setTotalPages(response.data.totalPages);
-            })
-            .catch((error) => {
-                message.error('Error. Failed to fetch notes!');
-                console.error(error);
-                handle401Error({error, setAuthState, navigate});
-            })
-            .finally(() => {
-                setLoadingNotes(false);
-            });
+    const noteModalOnCloseHandler = useCallback(() => {
+        dispatch({
+            type: homePageActionTypes.SET_NOTE_MODAL_VISIBILITY,
+            payload: false
+        })
+    }, [dispatch]);
+
+    const onResetBtnClick = () => {
+        setSearchParams({});
     }
 
     const menu = (
@@ -194,6 +256,11 @@ export const HomePage = () => {
         </Menu>
     );
 
+    const urlSearchParams = getUrlSearchParams();
+    const currentPage = parseInt(urlSearchParams.page) || 1;
+    const sortOrder = (!urlSearchParams.sortOrder || urlSearchParams.sortOrder === 'desc') ? 'latest' : 'oldest';
+
+    const isResetBtnHidden = Object.keys(urlSearchParams).length === 0 || (Object.keys(urlSearchParams).length === 1 && parseInt(urlSearchParams.page) === 1);
 
     return (
         <div className={styles.mainPageWrapper}>
@@ -217,10 +284,17 @@ export const HomePage = () => {
                         enterButton="Search"
                         size="large"
                         onSearch={onSearch}
+                        defaultValue={urlSearchParams.search || ''}
                     />
                     <Button type="primary" size="large" icon={<PlusOutlined />} className={styles.addNewNoteButton} onClick={onAddNewNoteBtnClick}>
                         Add new note
                     </Button>
+                    {!isResetBtnHidden && (
+                            <Button type="primary" size="large" icon={<UndoOutlined />} className={styles.addNewNoteButton} onClick={onResetBtnClick}>
+                                Reset
+                            </Button>
+                        )
+                    }
                 </div>
 
                 <div className={styles.tagsWrapper}>
@@ -240,7 +314,7 @@ export const HomePage = () => {
                                 <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
                             ) : (
                                 <div className={styles.resultsCount}>
-                                    Found {notesCount} notes. Sort by last updated date:
+                                    Found: {notesCount} notes. Page {currentPage} from {totalPages}. Sort by last updated date:
                                     <Dropdown overlay={sortingMenu} className={styles.sorting}>
                                         <span className="ant-dropdown-link">
                                             <span className={styles.userName}>{sortOrder}</span>
@@ -251,10 +325,10 @@ export const HomePage = () => {
                             )}
 
                             {notes && (
-                                notes.map(note => <Note key={note.note_id} note={note} hashtags={tags} notes={notes} setNotes={setNotes} />)
+                                notes.map(note => <Note key={note.note_id} note={note} hashtags={tags} dispatch={dispatch} />)
                             )}
 
-                            {notesCount !== 0 && (
+                            {notesCount !== 0 && totalPages > 1 && (
                                 <Pagination defaultCurrent={1} current={currentPage} total={notesCount} pageSize={NOTES_PER_PAGE} onChange={onPaginationChange} />
                             )}
                         </>
@@ -262,7 +336,7 @@ export const HomePage = () => {
                 </div>
             </div>
 
-            {isNewNoteModalOpen && <NoteModal onCloseHandler={() => setIsNewNoteModalVisibility(false)} hashtags={tags} notes={notes} setNotes={setNotes} />}
+            {isNewNoteModalOpen && <NoteModal onCloseHandler={noteModalOnCloseHandler} hashtags={tags} dispatch={dispatch} />}
         </div>
     )
 }

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
     BrowserRouter,
     Routes,
@@ -18,16 +18,9 @@ import 'antd/dist/antd.css';
 export const AuthContext = React.createContext({});
 
 function App() {
-    const [authState, setAuthState] = useState({user: null});
+    const [authState, setAuthState] = useState({user: getUser()?.user});
 
     const {user} = authState;
-
-    useEffect(() => {
-        const user = getUser();
-        if (user) {
-            setAuthState({user: user.user})
-        }
-    }, []);
 
     return (
         <AuthContext.Provider value={{authState, setAuthState}}>
@@ -35,11 +28,11 @@ function App() {
                 <Routes>
                     <Route path="*" element={<NotFound />} />
                     <Route path="/" element={<Navigate replace to={Paths.HOME_PAGE_PATH} />} />
+                    {/* Private route: */}
+                    <Route path={Paths.HOME_PAGE_PATH} element={user ? <HomePage /> : <Navigate replace to={Paths.LOGIN_PATH} />}/>
                     {/* Public routes: */}
                     <Route path={Paths.LOGIN_PATH} element={!user ? <LoginPage /> : <Navigate replace to={Paths.HOME_PAGE_PATH} />}/>
                     <Route path={Paths.REGISTER_PAGE_PATH} element={!user ? <RegisterPage /> : <Navigate replace to={Paths.HOME_PAGE_PATH} />}/>
-                    {/* Private route: */}
-                    <Route path={Paths.HOME_PAGE_PATH} element={user ? <HomePage /> : <Navigate replace to={Paths.LOGIN_PATH} />}/>
                 </Routes>
             </BrowserRouter>
         </AuthContext.Provider>
