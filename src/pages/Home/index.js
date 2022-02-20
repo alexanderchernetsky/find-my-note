@@ -272,7 +272,7 @@ export const HomePage = () => {
 
                     <div>
                         <span className={styles.userName}>{user?.user_name}</span>
-                        <Dropdown overlay={menu}>
+                        <Dropdown overlay={menu} align={{offset: [-15, 0]}}>
                             <Avatar
                                 className={styles.avatar}
                                 size={40}
@@ -297,16 +297,20 @@ export const HomePage = () => {
                         size="large"
                         onSearch={onSearch}
                         defaultValue={urlSearchParams.search || ''}
+                        className={styles.search}
                     />
-                    <Button type="primary" size="large" icon={<PlusOutlined />} className={styles.addNewNoteButton} onClick={onAddNewNoteBtnClick}>
-                        New note
-                    </Button>
-                    {!isResetBtnHidden && (
-                            <Button type="primary" size="large" icon={<UndoOutlined />} className={styles.addNewNoteButton} onClick={onResetBtnClick}>
+
+                    <div className={styles.buttonsWrapper}>
+                        <Button type="primary" size="large" icon={<PlusOutlined />} className={styles.addNewNoteButton} onClick={onAddNewNoteBtnClick}>
+                            New note
+                        </Button>
+                        {!isResetBtnHidden && (
+                            <Button type="primary" size="large" icon={<UndoOutlined />} className={styles.resetButton} onClick={onResetBtnClick}>
                                 Reset
                             </Button>
                         )
-                    }
+                        }
+                    </div>
                 </div>
 
                 <div className={styles.tagsWrapper}>

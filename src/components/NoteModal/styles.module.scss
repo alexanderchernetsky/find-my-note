@@ -23,15 +23,27 @@
   justify-content: center;
   align-items: center;
   padding: 20px;
+
+  @media screen and (max-width: 768px) {
+    width: 450px;
+  }
+
+  @media screen and (max-width: 480px) {
+    width: 350px;
+  }
 }
 
 .modalTitle {
   font-weight: bold;
-  font-size: 24px;
+  font-size: 22px;
   text-align: center;
   color: #1891FF;
   position: relative;
   width: 90%;
+
+  @media screen and (max-width: 768px) {
+    font-size: 20px;
+  }
 }
 
 .noteForm {
@@ -42,7 +54,11 @@
   display: flex !important;
   flex-direction: column !important;
   justify-content: flex-start !important;
-  margin-bottom: 20px;
+  margin-bottom: 20px !important;
+
+  @media screen and (max-width: 768px) {
+    margin-bottom: 5px !important;
+  }
 }
 
 .noteHeaderInput {

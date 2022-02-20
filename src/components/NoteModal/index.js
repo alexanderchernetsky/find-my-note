@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import {Button, Form, Input, message} from "antd";
 import {CloseOutlined} from "@ant-design/icons";
 
@@ -90,6 +90,17 @@ const NoteModal = ({onCloseHandler, hashtags, note, dispatch}) => {
         // copy to the clipboard
         navigator.clipboard.writeText(tagTitle);
     }
+
+
+    useEffect(() => {
+        // Disable scroll when modal is opened
+        const body = document.querySelector("body");
+        body.style.overflow = "hidden";
+
+        return () => {
+            body.style.overflow = "auto";
+        }
+    }, [])
 
     return (
         <React.Fragment>
