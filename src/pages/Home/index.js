@@ -299,7 +299,7 @@ export const HomePage = () => {
 
                 <div className={styles.tagsWrapper}>
                     {tags && (
-                        tags.map((tag, index) => <Tag key={index} title={tag} onClick={onTagClick} tooltipTitle='Click to search' /> )
+                        tags.map((tag, index) => <Tag key={index} title={tag} onClick={onTagClick} tooltipTitle='Click to search' isHomePage /> )
                     )}
                 </div>
 
