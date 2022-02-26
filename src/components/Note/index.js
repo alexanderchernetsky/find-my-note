@@ -16,7 +16,7 @@ import styles from './styles.module.scss';
 const { Meta } = Card;
 
 const Note = ({note, hashtags, dispatch}) => {
-    const {note_id, heading, text, date_created, last_updated} = note;
+    const {note_id, heading, text, date_created, last_updated, user_id} = note;
 
     const [isDeleteModalVisible, setDeleteModalVisibility] = useState(false);
     const [isEditNoteModalVisible, setEditNoteModalVisible] = useState(false);
@@ -30,7 +30,7 @@ const Note = ({note, hashtags, dispatch}) => {
     }
 
     const deleteModal = note_id => {
-        axiosInstance.delete(`/note/${note_id}`)
+        axiosInstance.delete(`/note/${note_id}?user_id=${user_id}`)
             .then(() => {
                 dispatch({
                     type: homePageActionTypes.REMOVE_NOTE,

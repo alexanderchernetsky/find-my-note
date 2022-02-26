@@ -63,7 +63,7 @@ const NoteModal = ({onCloseHandler, hashtags, note, dispatch}) => {
                 }).then((response) => {
                         dispatch({
                             type: homePageActionTypes.ADD_NEW_NOTE,
-                            payload: {...response.data.note}
+                            payload: response.data.note
                         });
                         message.success('You successfully created a new note!');
                         onCloseHandler();
