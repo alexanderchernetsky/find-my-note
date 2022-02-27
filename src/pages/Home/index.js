@@ -18,7 +18,7 @@ import styles from './styles.module.scss';
 
 const { Search } = Input;
 
-const NOTES_PER_PAGE = 5;
+const NOTES_PER_PAGE = 10;
 
 export const initialState = {
     notes: [],
