@@ -50,7 +50,7 @@
     width: 90%;
 }
 
-.noteFormItem {
+@mixin formItemMixin {
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
@@ -59,6 +59,13 @@
     @media screen and (max-width: 768px) {
         margin-bottom: 5px !important;
     }
+}
+
+.noteFormItem {
+    .ant-form-item-row {
+        @include formItemMixin; // bugfix
+    }
+    @include formItemMixin;
 }
 
 .noteHeaderInput {
