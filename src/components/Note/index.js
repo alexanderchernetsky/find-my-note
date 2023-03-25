@@ -1,19 +1,19 @@
-import {useState} from "react";
+import {useState} from 'react';
 import {Card, message, Tooltip} from 'antd';
-import { EditOutlined, DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import {EditOutlined, DeleteOutlined, InfoCircleOutlined} from '@ant-design/icons';
 import parse from 'html-react-parser';
-import moment from "moment";
+import moment from 'moment';
 
-import ConfirmationModal from "../ConfirmationModal";
-import NoteModal from "../NoteModal";
-import HASHTAG_REGEXP from "../../constants/regexp";
-import axiosInstance from "../../services/axios";
-import {homePageActionTypes} from "../../pages/Home";
+import ConfirmationModal from '../ConfirmationModal';
+import NoteModal from '../NoteModal';
+import HASHTAG_REGEXP from '../../constants/regexp';
+import axiosInstance from '../../services/axios';
+import {homePageActionTypes} from '../../pages/Home';
 
 import './styles.css';
 import styles from './styles.module.scss';
 
-const { Meta } = Card;
+const {Meta} = Card;
 
 const Note = ({note, hashtags, dispatch}) => {
     const {note_id, heading, text, date_created, last_updated, user_id} = note;
@@ -27,10 +27,11 @@ const Note = ({note, hashtags, dispatch}) => {
 
     const onDeleteBtnClick = () => {
         setDeleteModalVisibility(true);
-    }
+    };
 
     const deleteModal = note_id => {
-        axiosInstance.delete(`/note/${note_id}?user_id=${user_id}`)
+        axiosInstance
+            .delete(`/note/${note_id}?user_id=${user_id}`)
             .then(() => {
                 dispatch({
                     type: homePageActionTypes.REMOVE_NOTE,
@@ -38,51 +39,53 @@ const Note = ({note, hashtags, dispatch}) => {
                 });
                 message.success('You successfully deleted a note!');
             })
-            .catch((error) => {
+            .catch(error => {
                 message.error('You failed to delete a note!');
                 console.error(error);
             })
             .finally(() => {
                 setDeleteModalVisibility(false);
-            })
-    }
+            });
+    };
 
     const onEditBtnClick = () => {
         setEditNoteModalVisible(true);
-    }
+    };
 
     const infoTooltipContent = () => (
         <div>
             <div>Created: {moment(date_created).format('MMMM Do YYYY')}</div>
             <div>Last updated: {moment(last_updated).format('MMMM Do YYYY')}</div>
         </div>
-    )
+    );
 
     return (
         <>
             <Card
-                style={{ width: '100%' }}
+                style={{width: '100%'}}
                 actions={[
-                    <Tooltip placement="top" title={infoTooltipContent}><InfoCircleOutlined key="info" /></Tooltip>,
+                    <Tooltip placement="top" title={infoTooltipContent}>
+                        <InfoCircleOutlined key="info" />
+                    </Tooltip>,
                     <EditOutlined key="edit" onClick={onEditBtnClick} />,
-                    <DeleteOutlined key="delete" onClick={onDeleteBtnClick} />,
+                    <DeleteOutlined key="delete" onClick={onDeleteBtnClick} />
                 ]}
                 className={styles.card}
             >
-                <Meta
-                    title={heading}
-                    description={parsedContent}
-                />
+                <Meta title={heading} description={parsedContent} />
             </Card>
 
             {isDeleteModalVisible && (
-                <ConfirmationModal text={`Do you want to delete note "${heading}"?`} onCancel={() => setDeleteModalVisibility(false)} onOk={() => deleteModal(note_id)} />
+                <ConfirmationModal
+                    text={`Do you want to delete note "${heading}"?`}
+                    onCancel={() => setDeleteModalVisibility(false)}
+                    onOk={() => deleteModal(note_id)}
+                />
             )}
 
             {isEditNoteModalVisible && <NoteModal onCloseHandler={() => setEditNoteModalVisible(false)} note={note} hashtags={hashtags} dispatch={dispatch} />}
         </>
-
-    )
-}
+    );
+};
 
 export default Note;

@@ -1,22 +1,22 @@
-import {useCallback, useContext, useEffect, useReducer} from "react";
-import {Button, Input, message, Avatar, Menu, Dropdown, Spin, Space, Empty, Pagination} from "antd";
-import {useNavigate, useSearchParams} from "react-router-dom"; // no history in react-router-dom v6
+import {useCallback, useContext, useEffect, useReducer} from 'react';
+import {Button, Input, message, Avatar, Menu, Dropdown, Spin, Space, Empty, Pagination} from 'antd';
+import {useNavigate, useSearchParams} from 'react-router-dom'; // no history in react-router-dom v6
 import {PlusOutlined, DownOutlined, UndoOutlined} from '@ant-design/icons';
 
-import {removeUserSession} from "../../helpers/authentication";
-import {Paths} from "../../constants/routes";
-import {AuthContext} from "../../App";
-import Tag from "../../components/Tag";
-import NoteModal from "../../components/NoteModal";
-import Note from "../../components/Note";
-import axiosInstance from "../../services/axios";
-import getUrlSearchParams from "../../helpers/getUrlParams";
-import createSearchString from "../../helpers/createSearchString";
-import handle401Error from "../../helpers/handle401Error";
+import {removeUserSession} from '../../helpers/authentication';
+import {Paths} from '../../constants/routes';
+import {AuthContext} from '../../App';
+import Tag from '../../components/Tag';
+import NoteModal from '../../components/NoteModal';
+import Note from '../../components/Note';
+import axiosInstance from '../../services/axios';
+import getUrlSearchParams from '../../helpers/getUrlParams';
+import createSearchString from '../../helpers/createSearchString';
+import handle401Error from '../../helpers/handle401Error';
 
 import styles from './styles.module.scss';
 
-const { Search } = Input;
+const {Search} = Input;
 
 const NOTES_PER_PAGE = 10;
 
@@ -27,7 +27,7 @@ export const initialState = {
     loadingNotes: false,
     tags: [],
     isNewNoteModalOpen: false
-}
+};
 
 export const homePageActionTypes = {
     SET_NOTES_LOADING: 'SET_NOTES_LOADING',
@@ -38,7 +38,7 @@ export const homePageActionTypes = {
     SET_TAGS: 'SET_TAGS',
     SET_SORT_ORDER: 'SET_SORT_ORDER',
     SET_NOTE_MODAL_VISIBILITY: 'SET_NOTE_MODAL_VISIBILITY'
-}
+};
 
 export const homePageReducer = (state, action) => {
     switch (action.type) {
@@ -72,7 +72,7 @@ export const homePageReducer = (state, action) => {
             return {
                 ...state,
                 notes: newNotes,
-                notesCount: state.notesCount - 1,
+                notesCount: state.notesCount - 1
             };
         }
 
@@ -82,7 +82,7 @@ export const homePageReducer = (state, action) => {
                     return {
                         ...item,
                         ...action.payload
-                    }
+                    };
                 }
                 return item;
             });
@@ -90,24 +90,23 @@ export const homePageReducer = (state, action) => {
             return {
                 ...state,
                 notes: newNotes
-            }
+            };
         }
 
         case homePageActionTypes.ADD_NEW_NOTE: {
             return {
                 ...state,
                 notes: [action.payload, ...state.notes],
-                notesCount: state.notesCount + 1,
-            }
+                notesCount: state.notesCount + 1
+            };
         }
 
-
         default: {
-            console.error("Unexpected action type in homePageReducer!")
+            console.error('Unexpected action type in homePageReducer!');
             return state;
         }
     }
-}
+};
 
 export const HomePage = () => {
     const navigate = useNavigate();
@@ -121,14 +120,15 @@ export const HomePage = () => {
     const {notes, notesCount, totalPages, loadingNotes, tags, isNewNoteModalOpen} = state;
 
     useEffect(() => {
-        axiosInstance.get(`/tags?user_id=${user?.id}`)
-            .then((response) => {
+        axiosInstance
+            .get(`/tags?user_id=${user?.id}`)
+            .then(response => {
                 dispatch({
                     type: homePageActionTypes.SET_TAGS,
                     payload: response.data
                 });
             })
-            .catch((error) => {
+            .catch(error => {
                 message.error('Error. Failed to fetch tags!');
                 console.error(error);
             });
@@ -148,8 +148,9 @@ export const HomePage = () => {
             payload: true
         });
 
-        axiosInstance.get(`/notes${searchString}`)
-            .then((response) => {
+        axiosInstance
+            .get(`/notes${searchString}`)
+            .then(response => {
                 dispatch({
                     type: homePageActionTypes.SET_NOTES,
                     payload: {
@@ -159,7 +160,7 @@ export const HomePage = () => {
                     }
                 });
             })
-            .catch((error) => {
+            .catch(error => {
                 message.error('Error. Failed to fetch notes!');
                 console.error(error);
                 handle401Error({error, setAuthState, navigate});
@@ -173,18 +174,19 @@ export const HomePage = () => {
     }, [navigate, setAuthState, user?.id, searchParams]);
 
     const onLogoutBtnClick = () => {
-        axiosInstance.get('/logout')
+        axiosInstance
+            .get('/logout')
             .then(() => {
                 message.success('Logged out successfully!');
                 removeUserSession();
                 setAuthState({user: null});
                 navigate(Paths.LOGIN_PATH);
             })
-            .catch((error) => {
+            .catch(error => {
                 message.error('Logout failed!');
                 console.error(error);
             });
-    }
+    };
 
     const onSearch = text => {
         const oldUrlParams = getUrlSearchParams();
@@ -197,49 +199,49 @@ export const HomePage = () => {
             delete oldUrlParams.search;
             setSearchParams({...oldUrlParams, page: 1});
         }
-    }
+    };
 
-    const onTagClick = (title) => {
-        const titleWithoutHashtagSymbol = title.replace("#", "");
+    const onTagClick = title => {
+        const titleWithoutHashtagSymbol = title.replace('#', '');
         const oldUrlParams = getUrlSearchParams();
         if (oldUrlParams.search) {
             delete oldUrlParams.search;
         }
         setSearchParams({...oldUrlParams, tag: titleWithoutHashtagSymbol, page: 1});
-    }
+    };
 
-    const onSortingClick = (event) => {
+    const onSortingClick = event => {
         const oldUrlParams = getUrlSearchParams();
         const sortOrder = event.key === 'latest' ? 'desc' : 'asc';
         setSearchParams({...oldUrlParams, sortBy: 'date', sortOrder: sortOrder, page: 1});
-    }
+    };
 
     const onAddNewNoteBtnClick = () => {
         dispatch({
             type: homePageActionTypes.SET_NOTE_MODAL_VISIBILITY,
             payload: true
-        })
-    }
+        });
+    };
 
-    const onPaginationChange = (page) => {
+    const onPaginationChange = page => {
         const oldUrlParams = getUrlSearchParams();
         setSearchParams({...oldUrlParams, page});
-    }
+    };
 
     const noteModalOnCloseHandler = useCallback(() => {
         dispatch({
             type: homePageActionTypes.SET_NOTE_MODAL_VISIBILITY,
             payload: false
-        })
+        });
     }, [dispatch]);
 
     const onResetBtnClick = () => {
         setSearchParams({});
-    }
+    };
 
     const menu = (
         <Menu>
-            <Menu.Item key='Logout' className={styles.logOut} onClick={onLogoutBtnClick}>
+            <Menu.Item key="Logout" className={styles.logOut} onClick={onLogoutBtnClick}>
                 <span>Log out</span>
             </Menu.Item>
         </Menu>
@@ -247,10 +249,10 @@ export const HomePage = () => {
 
     const sortingMenu = (
         <Menu>
-            <Menu.Item key='latest' className={styles.sortingMenuItem} onClick={onSortingClick}>
+            <Menu.Item key="latest" className={styles.sortingMenuItem} onClick={onSortingClick}>
                 <span>latest</span>
             </Menu.Item>
-            <Menu.Item key='oldest' className={styles.sortingMenuItem} onClick={onSortingClick}>
+            <Menu.Item key="oldest" className={styles.sortingMenuItem} onClick={onSortingClick}>
                 <span>oldest</span>
             </Menu.Item>
         </Menu>
@@ -258,7 +260,7 @@ export const HomePage = () => {
 
     const urlSearchParams = getUrlSearchParams();
     const currentPage = parseInt(urlSearchParams.page) || 1;
-    const sortOrder = (!urlSearchParams.sortOrder || urlSearchParams.sortOrder === 'desc') ? 'latest' : 'oldest';
+    const sortOrder = !urlSearchParams.sortOrder || urlSearchParams.sortOrder === 'desc' ? 'latest' : 'oldest';
 
     const isResetBtnHidden = Object.keys(urlSearchParams).length === 0 || (Object.keys(urlSearchParams).length === 1 && parseInt(urlSearchParams.page) === 1);
 
@@ -266,9 +268,7 @@ export const HomePage = () => {
         <div className={styles.mainPageWrapper}>
             <header className={styles.header}>
                 <div className={styles.headerMenu}>
-                    <div className={styles.appTitle}>
-                        #FindMyNote
-                    </div>
+                    <div className={styles.appTitle}>#FindMyNote</div>
 
                     <div>
                         <span className={styles.userName}>{user?.user_name}</span>
@@ -278,7 +278,7 @@ export const HomePage = () => {
                                 size={40}
                                 style={{
                                     backgroundImage: 'linear-gradient(332.32deg,#ff5b8c .01%,#edbc0d 83.78%)',
-                                    verticalAlign: 'middle',
+                                    verticalAlign: 'middle'
                                 }}
                             >
                                 {user.user_name?.charAt(0)}
@@ -308,15 +308,12 @@ export const HomePage = () => {
                             <Button type="primary" size="large" icon={<UndoOutlined />} className={styles.resetButton} onClick={onResetBtnClick}>
                                 Reset
                             </Button>
-                        )
-                        }
+                        )}
                     </div>
                 </div>
 
                 <div className={styles.tagsWrapper}>
-                    {tags && (
-                        tags.map((tag, index) => <Tag key={index} title={tag} onClick={onTagClick} tooltipTitle='Click to search' isHomePage /> )
-                    )}
+                    {tags && tags.map((tag, index) => <Tag key={index} title={tag} onClick={onTagClick} tooltipTitle="Click to search" isHomePage />)}
                 </div>
 
                 <div className={styles.notesWrapper}>
@@ -340,12 +337,16 @@ export const HomePage = () => {
                                 </div>
                             )}
 
-                            {notes && (
-                                notes.map(note => <Note key={note.note_id} note={note} hashtags={tags} dispatch={dispatch} />)
-                            )}
+                            {notes && notes.map(note => <Note key={note.note_id} note={note} hashtags={tags} dispatch={dispatch} />)}
 
                             {notesCount !== 0 && totalPages > 1 && (
-                                <Pagination defaultCurrent={1} current={currentPage} total={notesCount} pageSize={NOTES_PER_PAGE} onChange={onPaginationChange} />
+                                <Pagination
+                                    defaultCurrent={1}
+                                    current={currentPage}
+                                    total={notesCount}
+                                    pageSize={NOTES_PER_PAGE}
+                                    onChange={onPaginationChange}
+                                />
                             )}
                         </>
                     )}
@@ -354,5 +355,5 @@ export const HomePage = () => {
 
             {isNewNoteModalOpen && <NoteModal onCloseHandler={noteModalOnCloseHandler} hashtags={tags} dispatch={dispatch} />}
         </div>
-    )
-}
+    );
+};
