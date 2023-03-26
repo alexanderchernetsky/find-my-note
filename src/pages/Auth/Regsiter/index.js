@@ -52,7 +52,11 @@ export const RegisterPage = () => {
                     <Input className={styles.loginFormInput} placeholder="Email" />
                 </Item>
 
-                <Item name="user_name" rules={[{required: true, message: 'Please input your user name!'}]} className={styles.loginFormItem}>
+                <Item
+                    name="user_name"
+                    rules={[{required: true, message: 'Please input your user name!', whitespace: true, type: 'string'}]}
+                    className={styles.loginFormItem}
+                >
                     <Input className={styles.loginFormInput} placeholder="User name" />
                 </Item>
 
