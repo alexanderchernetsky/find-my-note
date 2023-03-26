@@ -8,14 +8,14 @@ import ConfirmationModal from '../ConfirmationModal';
 import NoteModal from '../NoteModal';
 import HASHTAG_REGEXP from '../../constants/regexp';
 import axiosInstance from '../../services/axios';
-import {homePageActionTypes} from '../../pages/Home';
+import {homePageActionTypes} from '../../pages/Home/reducer';
 
 import './styles.css';
 import styles from './styles.module.scss';
 
 const {Meta} = Card;
 
-const Note = ({note, hashtags, dispatch}) => {
+const Note = ({note, hashtags, dispatch, fetchTags}) => {
     const {note_id, heading, text, date_created, last_updated, user_id} = note;
 
     const [isDeleteModalVisible, setDeleteModalVisibility] = useState(false);
@@ -37,6 +37,9 @@ const Note = ({note, hashtags, dispatch}) => {
                     type: homePageActionTypes.REMOVE_NOTE,
                     payload: note_id
                 });
+
+                fetchTags(); // some tags may not be used anymore, so we need to refresh tags
+
                 message.success('You successfully deleted a note!');
             })
             .catch(error => {
@@ -83,7 +86,9 @@ const Note = ({note, hashtags, dispatch}) => {
                 />
             )}
 
-            {isEditNoteModalVisible && <NoteModal onCloseHandler={() => setEditNoteModalVisible(false)} note={note} hashtags={hashtags} dispatch={dispatch} />}
+            {isEditNoteModalVisible && (
+                <NoteModal onCloseHandler={() => setEditNoteModalVisible(false)} note={note} hashtags={hashtags} dispatch={dispatch} fetchTags={fetchTags} />
+            )}
         </>
     );
 };

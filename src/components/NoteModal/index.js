@@ -6,19 +6,19 @@ import Tag from '../Tag';
 import axiosInstance from '../../services/axios';
 import {AuthContext} from '../../App';
 import {getTags} from '../../helpers/getTags';
-import {homePageActionTypes} from '../../pages/Home';
+import {homePageActionTypes} from '../../pages/Home/reducer';
 
 import styles from './styles.module.scss';
 
 const {Item} = Form;
 const {TextArea} = Input;
 
-const NoteModal = ({onCloseHandler, hashtags, note, dispatch}) => {
+const NoteModal = ({onCloseHandler, hashtags, note, dispatch, fetchTags}) => {
     const [isSubmitInProgress, setSubmitProgress] = useState(false);
 
-    const {authState} = useContext(AuthContext);
-
-    const user = authState.user;
+    const {
+        authState: {user}
+    } = useContext(AuthContext);
 
     const isEditMode = !!note;
 
@@ -44,6 +44,7 @@ const NoteModal = ({onCloseHandler, hashtags, note, dispatch}) => {
                             type: homePageActionTypes.UPDATE_EXISTING_NOTE,
                             payload: {...response.data.values, note_id: note.note_id}
                         });
+                        fetchTags();
                         message.success('You successfully updated a note!');
                         onCloseHandler();
                     })
@@ -68,6 +69,7 @@ const NoteModal = ({onCloseHandler, hashtags, note, dispatch}) => {
                             type: homePageActionTypes.ADD_NEW_NOTE,
                             payload: response.data
                         });
+                        fetchTags();
                         message.success('You successfully created a new note!');
                         onCloseHandler();
                     })

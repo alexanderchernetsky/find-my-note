@@ -62,7 +62,7 @@
 }
 
 .noteFormItem {
-    .ant-form-item-row {
+    &.ant-form-item-row {
         @include formItemMixin; // bugfix
     }
     @include formItemMixin;
