@@ -19,7 +19,7 @@ import styles from './styles.module.scss';
 
 const {Search} = Input;
 
-const NOTES_PER_PAGE = 10;
+const DEFAULT_PAGE_SIZE = 10;
 
 export const HomePage = () => {
     const navigate = useNavigate();
@@ -57,7 +57,7 @@ export const HomePage = () => {
         const searchString = createSearchString({
             user_id: user?.id,
             ...urlParams,
-            limit: NOTES_PER_PAGE
+            limit: urlParams.pageSize || DEFAULT_PAGE_SIZE
         });
 
         dispatch({
@@ -140,9 +140,9 @@ export const HomePage = () => {
         });
     };
 
-    const onPaginationChange = page => {
+    const onPaginationChange = (page, pageSize) => {
         const oldUrlParams = getUrlSearchParams();
-        setSearchParams({...oldUrlParams, page});
+        setSearchParams({...oldUrlParams, page, pageSize});
     };
 
     const noteModalOnCloseHandler = useCallback(() => {
@@ -178,6 +178,7 @@ export const HomePage = () => {
     const urlSearchParams = getUrlSearchParams();
     const currentPage = parseInt(urlSearchParams.page) || 1;
     const sortOrder = !urlSearchParams.sortOrder || urlSearchParams.sortOrder === 'desc' ? 'latest' : 'oldest';
+    const itemsPerPage = parseInt(urlSearchParams.pageSize) || DEFAULT_PAGE_SIZE;
 
     const isResetBtnHidden = Object.keys(urlSearchParams).length === 0 || (Object.keys(urlSearchParams).length === 1 && parseInt(urlSearchParams.page) === 1);
 
@@ -257,13 +258,7 @@ export const HomePage = () => {
                             {notes && notes.map(note => <Note key={note.note_id} note={note} hashtags={tags} dispatch={dispatch} fetchTags={fetchTags} />)}
 
                             {notesCount !== 0 && totalPages > 1 && (
-                                <Pagination
-                                    defaultCurrent={1}
-                                    current={currentPage}
-                                    total={notesCount}
-                                    pageSize={NOTES_PER_PAGE}
-                                    onChange={onPaginationChange}
-                                />
+                                <Pagination defaultCurrent={1} current={currentPage} total={notesCount} pageSize={itemsPerPage} onChange={onPaginationChange} />
                             )}
                         </>
                     )}

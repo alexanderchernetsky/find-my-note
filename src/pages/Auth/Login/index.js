@@ -25,18 +25,17 @@ export const LoginPage = () => {
             axiosInstance
                 .post('/login', {email, password})
                 .then(res => {
+                    setLoading(false);
                     message.success('Logged in successfully!');
                     setUserSession({user: res.data.user});
                     setAuthState({user: res.data.user});
                     navigate(Paths.HOME_PAGE_PATH);
                 })
                 .catch(error => {
+                    setLoading(false);
                     const msg = error.response?.data?.message;
                     message.error(`Login failed. ${msg ? msg : ''}`);
                     console.error(error);
-                })
-                .finally(() => {
-                    setLoading(false);
                 });
         }
     };
