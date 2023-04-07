@@ -9,6 +9,8 @@ import NoteModal from '../NoteModal';
 import HASHTAG_REGEXP from '../../constants/regexp';
 import axiosInstance from '../../services/axios';
 import {homePageActionTypes} from '../../pages/Home/reducer';
+import getCanBeParsedAsJson from '../../helpers/getCanBeParsedAsJson';
+import convertEditorNoteToReactElements from '../../helpers/convertEditorNoteToReactElements';
 
 import './styles.css';
 import styles from './styles.module.scss';
@@ -21,9 +23,17 @@ const Note = ({note, hashtags, dispatch, fetchTags}) => {
     const [isDeleteModalVisible, setDeleteModalVisibility] = useState(false);
     const [isEditNoteModalVisible, setEditNoteModalVisible] = useState(false);
 
+    const isMadeInTextEditor = getCanBeParsedAsJson(text);
+
     // highlight hashtags
     const contentWithHighlight = text.replaceAll(HASHTAG_REGEXP, "$1<span class='hash-tag'>$2</span>");
-    const parsedContent = parse(contentWithHighlight);
+    // The parser converts an HTML string to one or more React elements.
+    const reactElements = parse(contentWithHighlight);
+
+    let parsedEditorContent = null;
+    if (isMadeInTextEditor) {
+        parsedEditorContent = convertEditorNoteToReactElements(text);
+    }
 
     const onDeleteBtnClick = () => {
         setDeleteModalVisibility(true);
@@ -75,7 +85,7 @@ const Note = ({note, hashtags, dispatch, fetchTags}) => {
                 ]}
                 className={styles.card}
             >
-                <Meta title={heading} description={parsedContent} />
+                <Meta title={heading} description={isMadeInTextEditor ? parsedEditorContent : reactElements} />
             </Card>
 
             {isDeleteModalVisible && (
