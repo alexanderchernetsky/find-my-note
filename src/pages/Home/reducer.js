@@ -22,6 +22,7 @@ export const homePageReducer = (state, action) => {
     switch (action.type) {
         case homePageActionTypes.SET_NOTES_LOADING:
             return {...state, loadingNotes: action.payload};
+
         case homePageActionTypes.SET_NOTES:
             return {
                 ...state,
@@ -29,16 +30,19 @@ export const homePageReducer = (state, action) => {
                 notesCount: action.payload.totalNotes,
                 totalPages: action.payload.totalPages
             };
+
         case homePageActionTypes.SET_TAGS:
             return {
                 ...state,
                 tags: action.payload
             };
+
         case homePageActionTypes.SET_SORT_ORDER:
             return {
                 ...state,
                 tags: action.payload
             };
+
         case homePageActionTypes.SET_NOTE_MODAL_VISIBILITY:
             return {
                 ...state,

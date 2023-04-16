@@ -1,15 +1,15 @@
 import {message} from 'antd';
 
+import {NOT_AUTHORIZED_HTTP_RESPONSE_CODE} from '../constants/httpResponseCodes';
 import axiosInstance from '../services/axios';
 import {removeUserSession} from './authentication';
 import {Paths} from '../constants/routes';
 
-const handle401Error = ({error, setAuthState, navigate}) => {
-    if (error?.response?.status === 401) {
+const handleFetchError = ({setAuthState, navigate, error, errorMessage}) => {
+    if (error?.response?.status === NOT_AUTHORIZED_HTTP_RESPONSE_CODE) {
         axiosInstance
             .get('/logout')
             .then(() => {
-                message.success('Logged out successfully!');
                 removeUserSession();
                 setAuthState({user: null});
                 navigate(Paths.LOGIN_PATH);
@@ -18,7 +18,10 @@ const handle401Error = ({error, setAuthState, navigate}) => {
                 message.error('Logout failed!');
                 console.error(error);
             });
+    } else {
+        message.error(errorMessage);
+        console.error(error);
     }
 };
 
-export default handle401Error;
+export default handleFetchError;

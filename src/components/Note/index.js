@@ -55,9 +55,6 @@ const Note = ({note, hashtags, dispatch, fetchTags}) => {
             .catch(error => {
                 message.error('You failed to delete a note!');
                 console.error(error);
-            })
-            .finally(() => {
-                setDeleteModalVisibility(false);
             });
     };
 

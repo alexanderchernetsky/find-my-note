@@ -12,7 +12,7 @@ import Note from '../../components/Note';
 import axiosInstance from '../../services/axios';
 import getUrlSearchParams from '../../helpers/getUrlParams';
 import createSearchString from '../../helpers/createSearchString';
-import handle401Error from '../../helpers/handle401Error';
+import handleFetchError from '../../helpers/handleFetchError';
 import {homePageActionTypes, homePageReducer, initialState} from './reducer';
 
 import styles from './styles.module.scss';
@@ -25,11 +25,19 @@ export const HomePage = () => {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const {authState, setAuthState} = useContext(AuthContext);
-    const user = authState.user;
+    const {
+        authState: {user},
+        setAuthState
+    } = useContext(AuthContext);
+
+    const urlParams = getUrlSearchParams();
+    const searchString = createSearchString({
+        user_id: user?.id,
+        ...urlParams,
+        limit: urlParams.pageSize || DEFAULT_PAGE_SIZE
+    });
 
     const [state, dispatch] = useReducer(homePageReducer, initialState);
-
     const {notes, notesCount, totalPages, loadingNotes, tags, isNewNoteModalOpen} = state;
 
     const fetchTags = useCallback(() => {
@@ -42,24 +50,15 @@ export const HomePage = () => {
                 });
             })
             .catch(error => {
-                message.error('Error. Failed to fetch tags!');
-                console.error(error);
+                handleFetchError({setAuthState, navigate, error, errorMessage: 'Error. Failed to fetch tags!'});
             });
-    }, [user?.id]);
+    }, [user?.id, navigate, setAuthState]);
 
     useEffect(() => {
         fetchTags();
     }, [user?.id, fetchTags]);
 
-    useEffect(() => {
-        const urlParams = getUrlSearchParams();
-
-        const searchString = createSearchString({
-            user_id: user?.id,
-            ...urlParams,
-            limit: urlParams.pageSize || DEFAULT_PAGE_SIZE
-        });
-
+    const fetchNotes = useCallback(() => {
         dispatch({
             type: homePageActionTypes.SET_NOTES_LOADING,
             payload: true
@@ -76,19 +75,23 @@ export const HomePage = () => {
                         totalPages: response.data.totalPages
                     }
                 });
-            })
-            .catch(error => {
-                message.error('Error. Failed to fetch notes!');
-                console.error(error);
-                handle401Error({error, setAuthState, navigate});
-            })
-            .finally(() => {
                 dispatch({
                     type: homePageActionTypes.SET_NOTES_LOADING,
                     payload: false
                 });
+            })
+            .catch(error => {
+                dispatch({
+                    type: homePageActionTypes.SET_NOTES_LOADING,
+                    payload: false
+                });
+                handleFetchError({setAuthState, navigate, error, errorMessage: 'Error. Failed to fetch notes!'});
             });
-    }, [navigate, setAuthState, user?.id, searchParams]);
+    }, [searchString, navigate, setAuthState]);
+
+    useEffect(() => {
+        fetchNotes();
+    }, [user?.id, fetchNotes, searchParams]);
 
     const onLogoutBtnClick = () => {
         axiosInstance
