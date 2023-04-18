@@ -1,7 +1,9 @@
 import {useCallback, useContext, useEffect, useReducer} from 'react';
-import {Button, Input, message, Avatar, Menu, Dropdown, Spin, Space, Empty, Pagination} from 'antd';
+import {Button, Input, message, Avatar, Menu, Dropdown, Spin, Space, Empty, Pagination, Collapse} from 'antd';
 import {useNavigate, useSearchParams} from 'react-router-dom'; // no history in react-router-dom v6
 import {PlusOutlined, DownOutlined, UndoOutlined} from '@ant-design/icons';
+import {isMobile} from 'react-device-detect';
+import classNames from 'classnames';
 
 import {removeUserSession} from '../../helpers/authentication';
 import {Paths} from '../../constants/routes';
@@ -18,6 +20,7 @@ import {homePageActionTypes, homePageReducer, initialState} from './reducer';
 import styles from './styles.module.scss';
 
 const {Search} = Input;
+const {Panel} = Collapse;
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -185,6 +188,14 @@ export const HomePage = () => {
 
     const isResetBtnHidden = Object.keys(urlSearchParams).length === 0 || (Object.keys(urlSearchParams).length === 1 && parseInt(urlSearchParams.page) === 1);
 
+    const isCollapseShown = isMobile && tags.length > 10;
+
+    const tagsElement = (
+        <div className={classNames(styles.tagsWrapper, isCollapseShown && styles.tagsWrapperInsideCollapse)}>
+            {tags && tags.map((tag, index) => <Tag key={index} title={tag} onClick={onTagClick} tooltipTitle="Click to search" isHomePage />)}
+        </div>
+    );
+
     return (
         <div className={styles.mainPageWrapper}>
             <header className={styles.header}>
@@ -233,9 +244,15 @@ export const HomePage = () => {
                     </div>
                 </div>
 
-                <div className={styles.tagsWrapper}>
-                    {tags && tags.map((tag, index) => <Tag key={index} title={tag} onClick={onTagClick} tooltipTitle="Click to search" isHomePage />)}
-                </div>
+                {isCollapseShown ? (
+                    <Collapse defaultActiveKey={['1']} ghost>
+                        <Panel header="Show/hide tags" key="1" className={styles.collapsePanel}>
+                            {tagsElement}
+                        </Panel>
+                    </Collapse>
+                ) : (
+                    tagsElement
+                )}
 
                 <div className={styles.notesWrapper}>
                     {loadingNotes ? (

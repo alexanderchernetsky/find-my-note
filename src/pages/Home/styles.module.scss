@@ -15,6 +15,7 @@
 
     @media screen and (max-width: 480px) {
         margin-top: 25px;
+        width: 90%;
     }
 }
 
@@ -69,6 +70,10 @@
     justify-content: flex-start;
     align-items: center;
     width: 100%;
+}
+
+.tagsWrapperInsideCollapse {
+    margin-top: 0;
 }
 
 .notesWrapper {
@@ -143,4 +148,20 @@
 .sorting {
     cursor: pointer;
     padding-left: 5px;
+}
+
+.collapsePanel {
+    // can't select Antd internal elements using classes
+    & > div:first-child {
+        font-size: 15px;
+        line-height: 18px;
+        padding-top: 25px !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        color: #1890ff !important;
+    }
+
+    & > div:last-child {
+        padding-top: 0 !important;
+    }
 }
