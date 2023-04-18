@@ -265,7 +265,7 @@ export const HomePage = () => {
                                 <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
                             ) : (
                                 <div className={styles.resultsCount}>
-                                    Found: {notesCount} notes. Page {currentPage} from {totalPages}. Sort by:
+                                    Found: {notesCount} notes. Page {currentPage} {isMobile ? '/' : 'from'} {totalPages}. Sort by:
                                     <Dropdown overlay={sortingMenu} className={styles.sorting}>
                                         <span className="ant-dropdown-link">
                                             <span className={styles.sortOrderName}>{sortOrder}</span>

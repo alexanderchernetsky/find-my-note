@@ -2,4 +2,14 @@
     margin-bottom: 30px !important;
     background: #fff;
     box-shadow: 4px 4px 8px rgb(216 221 232 / 80%);
+    & > div:first-child {
+        padding: 40px !important;
+    }
+
+    @media screen and (max-width: 480px) {
+        margin-bottom: 20px !important;
+        & > div:first-child {
+            padding: 20px !important;
+        }
+    }
 }
