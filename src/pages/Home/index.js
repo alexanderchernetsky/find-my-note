@@ -16,6 +16,7 @@ import getUrlSearchParams from '../../helpers/getUrlParams';
 import createSearchString from '../../helpers/createSearchString';
 import handleFetchError from '../../helpers/handleFetchError';
 import {homePageActionTypes, homePageReducer, initialState} from './reducer';
+import Error from '../../components/Error';
 
 import styles from './styles.module.scss';
 
@@ -41,7 +42,7 @@ export const HomePage = () => {
     });
 
     const [state, dispatch] = useReducer(homePageReducer, initialState);
-    const {notes, notesCount, totalPages, loadingNotes, tags, isNewNoteModalOpen} = state;
+    const {notes, notesCount, totalPages, loadingNotes, tags, isNewNoteModalOpen, isTagsFetchError, isNotesFetchError} = state;
 
     const fetchTags = useCallback(() => {
         axiosInstance
@@ -53,6 +54,10 @@ export const HomePage = () => {
                 });
             })
             .catch(error => {
+                dispatch({
+                    type: homePageActionTypes.SET_TAGS_FETCH_ERROR,
+                    payload: true
+                });
                 handleFetchError({setAuthState, navigate, error, errorMessage: 'Error. Failed to fetch tags!'});
             });
     }, [user?.id, navigate, setAuthState]);
@@ -85,8 +90,8 @@ export const HomePage = () => {
             })
             .catch(error => {
                 dispatch({
-                    type: homePageActionTypes.SET_NOTES_LOADING,
-                    payload: false
+                    type: homePageActionTypes.SET_NOTES_FETCH_ERROR,
+                    payload: true
                 });
                 handleFetchError({setAuthState, navigate, error, errorMessage: 'Error. Failed to fetch notes!'});
             });
@@ -191,9 +196,11 @@ export const HomePage = () => {
     const isCollapseShown = isMobile && tags.length > 10;
 
     const tagsElement = (
-        <div className={classNames(styles.tagsWrapper, isCollapseShown && styles.tagsWrapperInsideCollapse)}>
-            {tags && tags.map((tag, index) => <Tag key={index} title={tag} onClick={onTagClick} tooltipTitle="Click to search" isHomePage />)}
-        </div>
+        <Error isError={isTagsFetchError}>
+            <div className={classNames(styles.tagsWrapper, isCollapseShown && styles.tagsWrapperInsideCollapse)}>
+                {tags && tags.map((tag, index) => <Tag key={index} title={tag} onClick={onTagClick} tooltipTitle="Click to search" isHomePage />)}
+            </div>
+        </Error>
     );
 
     return (
@@ -275,7 +282,9 @@ export const HomePage = () => {
                                 </div>
                             )}
 
-                            {notes && notes.map(note => <Note key={note.note_id} note={note} hashtags={tags} dispatch={dispatch} fetchTags={fetchTags} />)}
+                            <Error isError={isNotesFetchError}>
+                                {notes && notes.map(note => <Note key={note.note_id} note={note} hashtags={tags} dispatch={dispatch} fetchTags={fetchTags} />)}
+                            </Error>
 
                             {notesCount !== 0 && totalPages > 1 && (
                                 <Pagination defaultCurrent={1} current={currentPage} total={notesCount} pageSize={itemsPerPage} onChange={onPaginationChange} />
