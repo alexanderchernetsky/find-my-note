@@ -5,6 +5,7 @@ export const initialState = {
     loadingNotes: false,
     isNotesFetchError: false,
     tags: [],
+    loadingTags: false,
     isTagsFetchError: false,
     isNewNoteModalOpen: false
 };
@@ -16,6 +17,7 @@ export const homePageActionTypes = {
     REMOVE_NOTE: 'REMOVE_NOTE',
     UPDATE_EXISTING_NOTE: 'UPDATE_EXISTING_NOTE',
     ADD_NEW_NOTE: 'ADD_NEW_NOTE',
+    SET_TAGS_LOADING: 'SET_TAGS_LOADING',
     SET_TAGS: 'SET_TAGS',
     SET_TAGS_FETCH_ERROR: 'SET_TAGS_FETCH_ERROR',
     SET_SORT_ORDER: 'SET_SORT_ORDER',
@@ -45,17 +47,22 @@ export const homePageReducer = (state, action) => {
                 isNotesFetchError: action.payload
             };
 
+        case homePageActionTypes.SET_TAGS_LOADING:
+            return {...state, loadingTags: action.payload};
+
         case homePageActionTypes.SET_TAGS:
             return {
                 ...state,
-                tags: action.payload
+                tags: action.payload,
+                loadingTags: false
             };
 
         case homePageActionTypes.SET_TAGS_FETCH_ERROR:
             return {
                 ...state,
                 tags: [],
-                isTagsFetchError: action.payload
+                isTagsFetchError: action.payload,
+                loadingTags: false
             };
 
         case homePageActionTypes.SET_SORT_ORDER:

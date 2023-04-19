@@ -1,5 +1,5 @@
 import {useCallback, useContext, useEffect, useReducer} from 'react';
-import {Button, Input, message, Avatar, Menu, Dropdown, Spin, Space, Empty, Pagination, Collapse} from 'antd';
+import {Button, Input, message, Avatar, Menu, Dropdown, Empty, Pagination, Collapse, Skeleton} from 'antd';
 import {useNavigate, useSearchParams} from 'react-router-dom'; // no history in react-router-dom v6
 import {PlusOutlined, DownOutlined, UndoOutlined} from '@ant-design/icons';
 import {isMobile} from 'react-device-detect';
@@ -42,9 +42,14 @@ export const HomePage = () => {
     });
 
     const [state, dispatch] = useReducer(homePageReducer, initialState);
-    const {notes, notesCount, totalPages, loadingNotes, tags, isNewNoteModalOpen, isTagsFetchError, isNotesFetchError} = state;
+    const {notes, notesCount, totalPages, loadingNotes, tags, loadingTags, isNewNoteModalOpen, isTagsFetchError, isNotesFetchError} = state;
 
     const fetchTags = useCallback(() => {
+        dispatch({
+            type: homePageActionTypes.SET_TAGS_LOADING,
+            payload: true
+        });
+
         axiosInstance
             .get(`/tags?user_id=${user?.id}`)
             .then(response => {
@@ -197,9 +202,13 @@ export const HomePage = () => {
 
     const tagsElement = (
         <Error isError={isTagsFetchError}>
-            <div className={classNames(styles.tagsWrapper, isCollapseShown && styles.tagsWrapperInsideCollapse)}>
-                {tags && tags.map((tag, index) => <Tag key={index} title={tag} onClick={onTagClick} tooltipTitle="Click to search" isHomePage />)}
-            </div>
+            {loadingTags ? (
+                <Skeleton.Button active size="default" shape="square" block className={styles.tagsSkeleton} />
+            ) : (
+                <div className={classNames(styles.tagsWrapper, isCollapseShown && styles.tagsWrapperInsideCollapse)}>
+                    {tags && tags.map((tag, index) => <Tag key={index} title={tag} onClick={onTagClick} tooltipTitle="Click to search" isHomePage />)}
+                </div>
+            )}
         </Error>
     );
 
@@ -263,9 +272,7 @@ export const HomePage = () => {
 
                 <div className={styles.notesWrapper}>
                     {loadingNotes ? (
-                        <Space size="large" align={'center'}>
-                            <Spin size="large" />
-                        </Space>
+                        <Skeleton active shape="square" block />
                     ) : (
                         <>
                             {notesCount === 0 ? (
