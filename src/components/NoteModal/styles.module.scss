@@ -15,12 +15,12 @@
     position: fixed;
     z-index: 3;
     top: 50%;
-    transform: translate(-50%, -50%);
     left: 50%;
+    transform: translate(-50%, -50%);
     background-color: white;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     padding: 20px;
 
@@ -29,9 +29,9 @@
     }
 
     @media screen and (max-width: 480px) {
-        width: 350px;
-        padding: 15px;
-        max-height: 80vh;
+        width: 100%;
+        padding: 15px 10px;
+        max-height: 100vh;
         overflow: scroll;
     }
 }
@@ -62,6 +62,12 @@
     @media screen and (max-width: 768px) {
         margin-bottom: 5px !important;
     }
+
+    @media screen and (max-width: 480px) {
+        & > div {
+            padding-bottom: 0 !important;
+        }
+    }
 }
 
 .noteFormItem {
@@ -80,6 +86,10 @@
     font-size: 14px;
     line-height: 20px;
     color: #3d4868 !important;
+
+    @media screen and (max-width: 768px) {
+        height: 40px;
+    }
 }
 
 .noteFormSubmitButton {
@@ -112,4 +122,7 @@
     line-height: 20px;
     color: #3d4868 !important;
     max-height: 500px;
+    .public-DraftStyleDefault-block {
+        margin: 0;
+    }
 }

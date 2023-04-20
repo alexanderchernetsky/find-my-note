@@ -42,7 +42,7 @@ export const HomePage = () => {
     });
 
     const [state, dispatch] = useReducer(homePageReducer, initialState);
-    const {notes, notesCount, totalPages, loadingNotes, tags, loadingTags, isNewNoteModalOpen, isTagsFetchError, isNotesFetchError} = state;
+    const {notes, notesCount, totalPages, loadingNotes, tags, loadingTags, isNewNoteModalOpen, isTagsFetchError} = state;
 
     const fetchTags = useCallback(() => {
         dispatch({
@@ -289,9 +289,7 @@ export const HomePage = () => {
                                 </div>
                             )}
 
-                            <Error isError={isNotesFetchError}>
-                                {notes && notes.map(note => <Note key={note.note_id} note={note} hashtags={tags} dispatch={dispatch} fetchTags={fetchTags} />)}
-                            </Error>
+                            {notes && notes.map(note => <Note key={note.note_id} note={note} hashtags={tags} dispatch={dispatch} fetchTags={fetchTags} />)}
 
                             {notesCount !== 0 && totalPages > 1 && (
                                 <Pagination defaultCurrent={1} current={currentPage} total={notesCount} pageSize={itemsPerPage} onChange={onPaginationChange} />
