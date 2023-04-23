@@ -1,4 +1,3 @@
-// return the user data from the local storage
 export const getUser = () => {
     const user = localStorage.getItem('user');
     if (user) {
@@ -7,12 +6,16 @@ export const getUser = () => {
     return null;
 };
 
-// remove the user from the local storage
-export const removeUserSession = () => {
-    localStorage.removeItem('user');
+export const getToken = () => {
+    return sessionStorage.getItem('token');
 };
 
-// set the user to the local storage
-export const setUserSession = user => {
-    localStorage.setItem('user', JSON.stringify(user)); // we don't want to store token in local storage for security reasons
+export const removeUserSession = () => {
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+};
+
+export const setUserSession = (user, token) => {
+    localStorage.setItem('user', JSON.stringify(user));
+    sessionStorage.setItem('token', token);
 };

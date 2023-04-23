@@ -5,7 +5,7 @@ import {useNavigate} from 'react-router-dom';
 import {setUserSession} from '../../../helpers/authentication';
 import {Paths} from '../../../constants/routes';
 import {AuthContext} from '../../../App';
-import axiosInstance from '../../../services/axios';
+import axiosInstance, {setUpAuthHeader} from '../../../services/axios';
 
 import styles from '../styles.module.scss';
 
@@ -27,7 +27,8 @@ export const LoginPage = () => {
                 .then(res => {
                     setLoading(false);
                     message.success('Logged in successfully!');
-                    setUserSession({user: res.data.user});
+                    setUserSession({user: res.data.user}, res.data.token);
+                    setUpAuthHeader({tokenType: 'Bearer', accessToken: res.data.token});
                     setAuthState({user: res.data.user});
                     navigate(Paths.HOME_PAGE_PATH);
                 })

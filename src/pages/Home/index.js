@@ -11,7 +11,7 @@ import {AuthContext} from '../../App';
 import Tag from '../../components/Tag';
 import NoteModal from '../../components/NoteModal';
 import Note from '../../components/Note';
-import axiosInstance from '../../services/axios';
+import axiosInstance, {removeAuthHeader} from '../../services/axios';
 import getUrlSearchParams from '../../helpers/getUrlParams';
 import createSearchString from '../../helpers/createSearchString';
 import handleFetchError from '../../helpers/handleFetchError';
@@ -112,6 +112,7 @@ export const HomePage = () => {
             .then(() => {
                 message.success('Logged out successfully!');
                 removeUserSession();
+                removeAuthHeader();
                 setAuthState({user: null});
                 navigate(Paths.LOGIN_PATH);
             })

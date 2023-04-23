@@ -1,12 +1,13 @@
 import React, {useState} from 'react';
 import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom';
 
-import {getUser} from './helpers/authentication';
+import {getToken, getUser} from './helpers/authentication';
 import {HomePage} from './pages/Home';
 import {LoginPage} from './pages/Auth/Login';
 import {RegisterPage} from './pages/Auth/Regsiter';
 import {NotFound} from './pages/NotFound';
 import {Paths} from './constants/routes';
+import {setUpAuthHeader} from './services/axios';
 
 import 'antd/dist/antd.css';
 
@@ -16,6 +17,10 @@ function App() {
     const [authState, setAuthState] = useState({user: getUser()?.user});
 
     const {user} = authState;
+    const token = getToken();
+    if (token) {
+        setUpAuthHeader({tokenType: 'Bearer', accessToken: token});
+    }
 
     return (
         <AuthContext.Provider value={{authState, setAuthState}}>
