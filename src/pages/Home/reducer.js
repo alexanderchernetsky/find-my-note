@@ -107,7 +107,8 @@ export const homePageReducer = (state, action) => {
             return {
                 ...state,
                 notes: [action.payload, ...state.notes],
-                notesCount: state.notesCount + 1
+                notesCount: state.notesCount + 1,
+                totalPages: state.totalPages || 1
             };
         }
 
