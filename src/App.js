@@ -20,8 +20,6 @@ function App() {
     const token = getToken();
     if (token) {
         setUpAuthHeader({tokenType: 'Bearer', accessToken: token});
-    } else {
-        removeUserSession();
     }
 
     return (
