@@ -19,7 +19,8 @@ const handleFetchError = ({setAuthState, navigate, error, errorMessage}) => {
                 console.error(error);
             });
     } else {
-        message.error(errorMessage);
+        // show BE validation message or fallback generic error message
+        message.error(error.response?.data?.message || errorMessage);
         console.error(error);
     }
 };
