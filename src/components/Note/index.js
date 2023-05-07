@@ -25,14 +25,17 @@ const Note = ({note, hashtags, dispatch, fetchTags}) => {
 
     const isMadeInTextEditor = getCanBeParsedAsJson(text);
 
-    // highlight hashtags
-    const contentWithHighlight = text.replaceAll(HASHTAG_REGEXP, "$1<span class='hash-tag'>$2</span>"); // replaceAll doesn't mutate the text
-    // The parser converts an HTML string to one or more React elements.
-    const reactElements = parse(contentWithHighlight);
+    let reactElements = null;
 
-    let parsedEditorContent = null;
     if (isMadeInTextEditor) {
-        parsedEditorContent = convertEditorNoteToReactElements(text);
+        // all new notes are made in the react-draft-wysiwyg editor
+        reactElements = convertEditorNoteToReactElements(text);
+    } else {
+        // this is for old plain text notes
+        // highlight hashtags
+        const contentWithHighlight = text.replaceAll(HASHTAG_REGEXP, "$1<span class='hash-tag'>$2</span>"); // replaceAll doesn't mutate the text
+        // The parser converts an HTML string to one or more React elements.
+        reactElements = parse(contentWithHighlight);
     }
 
     const onDeleteBtnClick = () => {
@@ -82,7 +85,7 @@ const Note = ({note, hashtags, dispatch, fetchTags}) => {
                 ]}
                 className={styles.card}
             >
-                <Meta title={heading} description={isMadeInTextEditor ? parsedEditorContent : reactElements} />
+                <Meta title={heading} description={reactElements} />
             </Card>
 
             {isDeleteModalVisible && (
