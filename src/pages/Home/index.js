@@ -201,6 +201,8 @@ export const HomePage = () => {
 
     const isCollapseShown = isMobile && tags.length > 10;
 
+    const isPaginationShown = notesCount > 10;
+
     const tagsElement = (
         <Error isError={isTagsFetchError}>
             {loadingTags ? (
@@ -292,7 +294,7 @@ export const HomePage = () => {
 
                             {notes && notes.map(note => <Note key={note.note_id} note={note} hashtags={tags} dispatch={dispatch} fetchTags={fetchTags} />)}
 
-                            {notesCount !== 0 && totalPages > 1 && (
+                            {isPaginationShown && (
                                 <Pagination defaultCurrent={1} current={currentPage} total={notesCount} pageSize={itemsPerPage} onChange={onPaginationChange} />
                             )}
                         </>

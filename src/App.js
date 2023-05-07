@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom';
 
-import {getToken, getUser, removeUserSession} from './helpers/authentication';
+import {getToken, getUser} from './helpers/authentication';
 import {HomePage} from './pages/Home';
 import {LoginPage} from './pages/Auth/Login';
 import {RegisterPage} from './pages/Auth/Regsiter';

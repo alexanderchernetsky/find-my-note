@@ -2,15 +2,15 @@ import draftToHtml from 'draftjs-to-html';
 import parse from 'html-react-parser';
 
 function convertEditorNoteToReactElements(raw) {
-    // 1. parse raw JSON;
-    // 2. use draftToHtml to get HTML string
-    // 3. use html-react-parser to convert html string to react elements
-    return parse(
-        draftToHtml(JSON.parse(raw), {
-            trigger: '#',
-            separator: ' '
-        })
-    );
+    // 1. parse raw JSON - JSON.parse(raw)
+    const parsedJson = JSON.parse(raw);
+    // 2. use draftToHtml library to get HTML string
+    const html = draftToHtml(parsedJson, {
+        trigger: '#',
+        separator: ' '
+    });
+    // 3. use parse from html-react-parser library to convert html string to react elements
+    return parse(html);
 }
 
 export default convertEditorNoteToReactElements;

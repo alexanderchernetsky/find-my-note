@@ -26,7 +26,7 @@ const Note = ({note, hashtags, dispatch, fetchTags}) => {
     const isMadeInTextEditor = getCanBeParsedAsJson(text);
 
     // highlight hashtags
-    const contentWithHighlight = text.replaceAll(HASHTAG_REGEXP, "$1<span class='hash-tag'>$2</span>");
+    const contentWithHighlight = text.replaceAll(HASHTAG_REGEXP, "$1<span class='hash-tag'>$2</span>"); // replaceAll doesn't mutate the text
     // The parser converts an HTML string to one or more React elements.
     const reactElements = parse(contentWithHighlight);
 
